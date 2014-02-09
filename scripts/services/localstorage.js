@@ -1,7 +1,6 @@
-
 'use strict';
 
-angular.module('angularLocalStorage',[])
+angular.module('administratorApp')
   
   .factory('storage', ['$parse','$window', '$log',
       function ($parse, $window, $log) {
@@ -32,7 +31,32 @@ angular.module('angularLocalStorage',[])
 					$log.info(e.message);
 				}
 				return val;
-			}
+			},
+
+			inArray : function(needle,array){  
+               if(angular.isArray(array)){
+               	  var flag = false;
+          	      angular.forEach(array, function(value, key){
+          	      	 if(needle===value){
+          	      	 	flag = true;
+          	      	 }
+          	      });
+          	      return flag;
+               }
+			},
+
+			unique : function(array){
+               if(angular.isArray(array)){
+				   var tmp = {}, destiny = [];
+				   angular.forEach(array, function(value, key){
+				      if(!tmp.hasOwnProperty(value)) {
+				         destiny.push(value);
+				         tmp[value] = 1;	
+				      }			   	
+				   });
+				   return destiny;               	
+               }
+			}  
 		};
 
 		var publicMethods = {
@@ -43,11 +67,16 @@ angular.module('angularLocalStorage',[])
 			 * @exception - the localstorage has size limit  
 			 */
 			set: function (key, value) {
+			   if(storage.getItem(key)){
+				   storage.removeItem(key);	
+			   }
+
 			   try {
 			   	 storage.setItem(key, angular.toJson(value));
 			   } catch(e) {
                    $log.info(e.message);
 			   }
+			   
 			},
 
 			/**
@@ -74,19 +103,70 @@ angular.module('angularLocalStorage',[])
 				storage.clear();
 			},
 
-			getLength:function(){
-				return storage.length;
-			},
-
 			/** Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
 			 * @param key - a string that will be used as the accessor for the pair
 			 * @param value - the value of the localStorage item
 			 */
-			update:function(key,value){
-			    if(storage.getItem(key)){
-				   storage.removeItem(key);	
+			update:function(modify,storageKey,value){
+				switch(modify){
+					case '$inc':
+					inc(storageKey,value);
+					break;
+					case '$push':
+					pushs(storageKey,value);
+					break;
+					case '$unique':
+					unique(storageKey);
+					break;
+					case '$addToSet':
+					addToSet(storageKey,value);
+					break;
+					case '$combine':
+					combine(storageKey,value);
+					break;
 				}
-				publicMethods.set(key,value);
+				function inc(storageKey,value){
+					var storageValue = publicMethods.get(storageKey);
+					if(angular.isNumber(storageValue)){
+				      storageValue +=value;
+                      publicMethods.set(storageKey,storageValue)
+					}else{
+						return false;
+					}
+				}
+				function pushs(storageKey,value){
+					var storageValue = publicMethods.get(storageKey);
+					if(angular.isArray(storageValue)){
+					  storageValue.push(value);
+                      publicMethods.set(storageKey,storageValue);
+					}else{
+						return false;
+					}
+				}
+				function addToSet(storageKey,value){
+                    var storageValue = publicMethods.get(storageKey);
+                    if (angular.isArray(storageValue) && !privateMethods.inArray(value,storageValue)) {
+                       storageValue.push(value);
+                       publicMethods.set(storageKey,storageValue);
+                    }else{
+                    	return false;
+                    }
+				}
+				function unique(storageKey){
+					var storageValue = publicMethods.get(storageKey);
+					if(angular.isArray(storageValue)){
+                      publicMethods.set(storageKey,privateMethods.unique(storageValue));
+					}else{
+						return false;
+					}
+				}
+				function combine(storageKey,value){
+					var storageValue = publicMethods.get(storageKey);
+					if(angular.isObject(storageValue) && angular.isObject(value)){
+						angular.extend(storageValue, value);
+						publicMethods.set(storageKey,storageValue);
+					}
+				}
 			},
 
 			 /*
@@ -181,12 +261,10 @@ angular.module('angularLocalStorage',[])
 
                function reverseUnbind(){
                	  $parse(storageKey)(publicMethods.bindObjectReverse).apply();
-               	  delete publicMethods.bindObjectReverse[storageKey];
                }
 
                function forwardUnbind(){
                	  $parse(modelKey)(publicMethods.bindObjectForward).apply();
-               	  delete publicMethods.bindObjectForward[modelKey];
                }
 
 			}
@@ -194,4 +272,3 @@ angular.module('angularLocalStorage',[])
 		};
 		return publicMethods;
 	}]);  
-
