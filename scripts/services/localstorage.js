@@ -37,7 +37,7 @@ angular.module('administratorApp')
                if(angular.isArray(array)){
                	  var flag = false;
           	      angular.forEach(array, function(value, key){
-          	      	 if(needle===value){
+          	      	 if(angular.equals(needle,value)){
           	      	 	flag = true;
           	      	 }
           	      });
@@ -99,7 +99,7 @@ angular.module('administratorApp')
 			/**
 			 * Clear All - let's you clear out ALL localStorage variables, use this carefully!
 			 */
- 			clearAll: function() {
+ 			clear: function() {
 				storage.clear();
 			},
 
@@ -107,7 +107,7 @@ angular.module('administratorApp')
 			 * @param key - a string that will be used as the accessor for the pair
 			 * @param value - the value of the localStorage item
 			 */
-			update:function(modify,storageKey,value){
+			update:function(storageKey,modify,value){
 				switch(modify){
 					case '$inc':
 					inc(storageKey,value);
@@ -137,7 +137,7 @@ angular.module('administratorApp')
 				function pushs(storageKey,value){
 					var storageValue = publicMethods.get(storageKey);
 					if(angular.isArray(storageValue)){
-					  storageValue.push(value);
+					  storageValue = storageValue.concat(value);
                       publicMethods.set(storageKey,storageValue);
 					}else{
 						return false;
@@ -145,12 +145,22 @@ angular.module('administratorApp')
 				}
 				function addToSet(storageKey,value){
                     var storageValue = publicMethods.get(storageKey);
-                    if (angular.isArray(storageValue) && !privateMethods.inArray(value,storageValue)) {
-                       storageValue.push(value);
+                    if(angular.isArray(storageValue)){
+                       if(angular.isArray(value)){
+                            angular.forEach(value,function(values,key){
+			                    if (!privateMethods.inArray(values,storageValue)) {
+			                       storageValue.push(values);
+			                    }   
+                            })
+                       }else{
+		                    if (!privateMethods.inArray(value,storageValue)) {
+		                       storageValue.push(value);		    
+		                    }   
+                       }
                        publicMethods.set(storageKey,storageValue);
                     }else{
-                    	return false;
-                    }
+	                    return false;
+	                }     
 				}
 				function unique(storageKey){
 					var storageValue = publicMethods.get(storageKey);
@@ -168,6 +178,7 @@ angular.module('administratorApp')
 					}
 				}
 			},
+		
 
 			 /*
 			    A object to store unregisters functions that generate when apply $scope.$watch
