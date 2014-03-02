@@ -17,8 +17,8 @@
     "bower_components",
     "test",
     "tests",
-    "scripts/controller/**/.*",
-    "scripts/**/.*"
+    "scripts/controller/**.*",
+    "scripts/**.*"
   ],
   "dependencies": {
     "angular": "1.2.6",
