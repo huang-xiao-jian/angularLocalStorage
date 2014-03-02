@@ -3,12 +3,21 @@ angularLocalStorage [![Build Status](https://travis-ci.org/agrublev/angularLocal
 
 The simpliest localStorage module you will ever use. Allowing you to set, get, and *bind* variables.
 
+##Install
+
+	bower install https://github.com/bornkiller/angularLocalStorage.git
+   
+```html
+<script src="scripts/service/localstorage.js></script>
+```
+
 ## Attention :
 
 * You can directly store Objects, Arrays, Floats, Booleans, and Strings. No need to convert your javascript values from strings.
 * No Fallback to Angular ``$cookies`` if localStorage is not supported
 * I follow the TDD rule to code this module , basic function works right, except the data binding, since I think it meaningless.
 * You can also see <https://github.com/agrublev/angularLocalStorage>
+
 
 ## How to use
 
