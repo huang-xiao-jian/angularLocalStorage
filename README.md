@@ -3,6 +3,10 @@ angularLocalStorage [![Build Status](https://travis-ci.org/agrublev/angularLocal
 
 The simpliest localStorage module you will ever use. Allowing you to set, get, and *bind* variables.
 
+## Attention
+For some reason, I am working on rebuilding this service. if you need immediately, useful javascript file right now, checkout old-version branch.
+
+
 ##Install
 
 	bower install https://github.com/bornkiller/angularLocalStorage.git
