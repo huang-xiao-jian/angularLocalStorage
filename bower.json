@@ -1,0 +1,29 @@
+{
+  "name": "angularLocalStorage",
+  "version": "0.1.0",
+  "homepage": "https://github.com/bornkiller/angularLocalStorage",
+  "repository": "https://github.com/bornkiller/angularLocalStorage.git",
+  "authors": [
+    "bornkiller <hjj491229492@hotmail.com>"
+  ],
+  "description": "The simpliest localStorage module you will ever use",
+  "main": "src/storage.js",
+  "keywords": [
+    "localstorage"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "test",
+    "examples",
+    ".*"
+  ],
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "angular": "^1.2.20",
+    "angular-mocks": "^1.2.16"
+  }
+}
