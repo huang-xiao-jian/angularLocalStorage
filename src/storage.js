@@ -1,7 +1,4 @@
-'use strict';
-
-angular.module('administratorApp')
-  
+angular.module('storage', [])
   .factory('storage', ['$parse','$window', '$log',
       function ($parse, $window, $log) {
 		/**
@@ -36,7 +33,7 @@ angular.module('administratorApp')
 			inArray : function(needle,array){  
                if(angular.isArray(array)){
                	  var flag = false;
-          	      angular.forEach(array, function(value, key){
+          	      angular.forEach(array, function(value){
           	      	 if(angular.equals(needle,value)){
           	      	 	flag = true;
           	      	 }
@@ -72,7 +69,7 @@ angular.module('administratorApp')
 			   }
 
 			   try {
-			   	 storage.setItem(key, angular.toJson(value));
+                   storage.setItem(key, angular.toJson(value));
 			   } catch(e) {
                    $log.info(e.message);
 			   }
@@ -104,64 +101,77 @@ angular.module('administratorApp')
 			},
 
 			/** Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
-			 * @param key - a string that will be used as the accessor for the pair
+             * @param modify - shorthand method
+			 * @param storageKey - a string that will be used as the accessor for the pair
 			 * @param value - the value of the localStorage item
 			 */
-			update:function(storageKey,modify,value){
+			update:function(modify, storageKey, value){
 				switch(modify){
 					case '$inc':
-					inc(storageKey,value);
-					break;
+					    inc(storageKey, value);
+					    break;
+                    case '$verse':
+                        verse(storageKey, value);
+                        break;
 					case '$push':
-					pushs(storageKey,value);
-					break;
+					    push(storageKey, value);
+					    break;
 					case '$unique':
-					unique(storageKey);
-					break;
+					    unique(storageKey);
+					    break;
 					case '$addToSet':
-					addToSet(storageKey,value);
-					break;
-					case '$combine':
-					combine(storageKey,value);
-					break;
+					    addToSet(storageKey, value);
+					    break;
+					case '$extend':
+					    extend(storageKey, value);
+					    break;
 				}
+
 				function inc(storageKey,value){
 					var storageValue = publicMethods.get(storageKey);
-					if(angular.isNumber(storageValue)){
+					if (angular.isNumber(storageValue)){
 				      storageValue +=value;
-                      publicMethods.set(storageKey,storageValue)
-					}else{
+                      publicMethods.set(storageKey, storageValue)
+					} else {
 						return false;
 					}
 				}
-				function pushs(storageKey,value){
+
+                function verse(storageKey, value) {
+                    var storageValue = publicMethods.get(storageKey);
+                    if (angular.equals(storageValue, true)) {
+                        storageValue = false;
+                        publicMethods.set(storageKey, storageValue);
+                    } else if (angular.equals(storageValue, false)) {
+                        storageValue = true;
+                        publicMethods.set(storageKey, storageValue);
+                    } else {
+                        return false;
+                    }
+                }
+
+				function push(storageKey,value){
 					var storageValue = publicMethods.get(storageKey);
 					if(angular.isArray(storageValue)){
-					  storageValue = storageValue.concat(value);
-                      publicMethods.set(storageKey,storageValue);
+					    storageValue = storageValue.concat(value);
+                        publicMethods.set(storageKey,storageValue);
 					}else{
 						return false;
 					}
 				}
+
 				function addToSet(storageKey,value){
                     var storageValue = publicMethods.get(storageKey);
-                    if(angular.isArray(storageValue)){
-                       if(angular.isArray(value)){
-                            angular.forEach(value,function(values,key){
-			                    if (!privateMethods.inArray(values,storageValue)) {
-			                       storageValue.push(values);
-			                    }   
-                            })
-                       }else{
-		                    if (!privateMethods.inArray(value,storageValue)) {
-		                       storageValue.push(value);		    
-		                    }   
-                       }
-                       publicMethods.set(storageKey,storageValue);
+                    if (angular.isArray(storageValue) && !angular.isArray(value)){
+		                if (!privateMethods.inArray(value, storageValue)) {
+		                    storageValue.push(value);
+		                }
+                        publicMethods.set(storageKey, storageValue);
                     }else{
 	                    return false;
 	                }     
 				}
+
 				function unique(storageKey){
 					var storageValue = publicMethods.get(storageKey);
 					if(angular.isArray(storageValue)){
@@ -170,7 +180,8 @@ angular.module('administratorApp')
 						return false;
 					}
 				}
-				function combine(storageKey,value){
+
+				function extend(storageKey,value){
 					var storageValue = publicMethods.get(storageKey);
 					if(angular.isObject(storageValue) && angular.isObject(value)){
 						angular.extend(storageValue, value);
@@ -204,42 +215,38 @@ angular.module('administratorApp')
                      break;
                    case 'reverse' :
                      reverseBind();
-                     break;          
-                   case 'normal' :
-                     forwardBind();
-                     reverseBind();
-                     break;                       
+                     break;
                    default :
                      forwardBind();
                      break;                                
                 }
 
 				function reverseBind(){
-
 					var tmp = $scope.$watch(
-							function(){return publicMethods.get(storageKey)},
-		                    function(newVal,oldVal){
-		                       $parse(modelKey).assign($scope,newVal);
+							function (){
+								return publicMethods.get(storageKey)
+							},
+		                    function(newVal, oldVal){
+		                       $parse(modelKey).assign($scope, newVal);
 		                    },
 		                    true
-						)
+						);
 
-                    $parse(storageKey).assign(publicMethods.bindObjectReverse,tmp);	
-
+                    $parse(storageKey).assign(publicMethods.bindObjectReverse, tmp);	
 				}
 
 				function forwardBind(){
-
 					var tmp = $scope.$watch(
-							function(){return $parse(modelKey)($scope);},
+							function(){
+								return $parse(modelKey)($scope);
+							},
 		                    function(newVal,oldVal){
 		                    	publicMethods.set(storageKey,newVal);
 		                    },
 		                    true
-						)
+						);
                     
-					$parse(modelKey).assign(publicMethods.bindObjectForward,tmp);
-
+					$parse(modelKey).assign(publicMethods.bindObjectForward, tmp);
 				}				
 
 			},
@@ -252,7 +259,7 @@ angular.module('administratorApp')
 			                      model or both way 
 
 			 */
-			unbind : function($scope,modelKey,storageKey,direction){
+			unbind : function($scope, modelKey, storageKey, direction){
 
                 switch (direction) {
                    case 'forward' :
@@ -260,11 +267,7 @@ angular.module('administratorApp')
                      break;
                    case 'reverse' :
                      reverseUnbind();
-                     break;          
-                   case 'normal' :
-                     forwardUnbind();
-                     reverseUnbind();
-                     break;                       
+                     break;                              
                    default :
                      forwardUnbind();
                      break;                                

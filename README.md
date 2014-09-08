@@ -8,7 +8,7 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
 	bower install https://github.com/bornkiller/angularLocalStorage.git
    
 ```html
-<script src="scripts/service/localstorage.js></script>
+<script src="src/storage.js></script>
 ```
 
 ## Attention :
@@ -22,7 +22,7 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
 ## How to use
 
 1. Just add this module to your app as a dependency
-``var yourApp = angular.module('yourApp', [..., 'angularLocalStorage']``
+``var yourApp = angular.module('yourApp', [..., 'storage']``
 2. Now inside your controllers simply pass the storage factory like this
 ``yourApp.controller('yourController', function( $scope, storage){``
 3. Using the ``storage`` factory
@@ -41,7 +41,7 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
   storage.clear();
   
   // just update stored things in localStorage
-  storage.update('storageKey','modifier','value');
+  storage.update('modifier', 'storageKey', 'value');
 
   //make a data-binding from model to localstorage or reverse or both 
   storage.bind($scope,'modelKey','storageKey','dirction');
@@ -50,15 +50,16 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
   storage.unbind($scope,'modelKey','storageKey','dirction');
   ```
 4. About  update method
-   ``update(storageKey,modify,value)``
+   ``update(modifier, storageKey, value)``
 
-  | modify                | feature        |
+  | modifier                | feature        |
   | :------------------: | :------------- |
   | ``$inc``               |  to plus a number for the stored value(negative acceptable)     |
+  | ``$verse``           | to verse Booleans value |
   | ``$push``            |  to push new value into the stored array(array and other   variable type acceptalbe)
-  | ``$addToset``    |  to push a new value that doesn't exist in the stored array (array and other variable type acceptalbe)|
+  | ``$addToset``    |  to push a new value(not array) that doesn't exist in the stored array |
   | ``$unique``         |  unique the stored array,the third argument not in need |
-  | ``$combine``      |  to update the stored object by the value,when key conflict happens,passing-in value will override |
+  | ``$extend``      |  to update extend stored object by the passing-in value,passing-in value higher priority |
 
   For example 
   ```javascript
@@ -79,7 +80,7 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
   ```
   ```javascript
       storage.set('love',{"title":"I love you","content":"I wish you were here"});
-      storage.update('$combine','love',{"content":"Rock N roll","label":"dark"});
+      storage.update('$extend','love',{"content":"Rock N roll","label":"dark"});
       storage.get('love') == {
              "title":"I love you",
              "content":"Rock N roll",
@@ -88,6 +89,15 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
   ```
 
 5. About data-binding 
+  ``storage.bind($scope,'modelKey','storageKey','dirction');``
+  ``storage.unbind($scope,'modelKey','storageKey','dirction');``
+
+  | direction            | instruction                    |
+  | :------------------: | :-------------                 |
+  | forward              | sync from model to localstorage|
+  | reverse              | sync from localstorage to model|
+  | default              | sync forward way               |
+
   Compare with agrublev , I had modified all the code about data-binding for more simple use. 
   Below is example snippt for data-binding if you don't use bind method:
   ```JAVASCRIPT
@@ -97,9 +107,8 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
       var tmp=$scope.$watch($scope.storageListener,function(newVal,oldVal){
       	  $scope.zero = newVal;
       },true) 
-      tmp(); 
   ```
-  The snippt purpose is to modify $scope.zero when localstorage.zero has changed,direction is from localstorage to
+  The snippt purpose is to modify $scope.zero when localstorage.zero has changed, direction is from localstorage to
   model
 
   ```JAVASCRIPT
@@ -107,21 +116,20 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
       var tmp=$scope.$watch('zero',function(newVal,oldVal){
       	storage.set('zero',$scope.zero);
       },true) 
-      tmp(); 
   ```
   The snippt purpose is to modify  localstorage.zero when $scope.zero has changed,direction is from model to   localstorage
 
   Now you can just use the provided way to bind date
   ```JAVASCRIPT
-	storage.bind($scope,'zero','zero','normal');
-	storage.unbind($scope,'zero','zero','normal');
+	storage.bind($scope,'zero','zero','forward');
+	storage.unbind($scope,'zero','zero','forward');
   ```
 
 ## Feature coming soon
  New update modify comes later,forget the get -> operate -> set order.
   
-  Please add an issue with ideas, improvements, or bugs! Thanks!
-  You can send me email ``hjj491229492@hotmail.com``
+ Please add an issue with ideas, improvements, or bugs! Thanks!
+ You can send me email ``hjj491229492@hotmail.com``
 
 ---
 
