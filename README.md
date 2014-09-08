@@ -1,5 +1,7 @@
 angularLocalStorage 
 ====================
+[![Build Status](https://travis-ci.org/bornkiller/angularLocalStorage.svg?branch=master)](https://travis-ci.org/bornkiller/angularLocalStorage)
+[![Coverage Status](https://coveralls.io/repos/bornkiller/angularLocalStorage/badge.png?branch=master)](https://coveralls.io/r/bornkiller/angularLocalStorage?branch=master)
 
 The simpliest localStorage module you will ever use. Allowing you to set, get, and *bind* variables.
 
