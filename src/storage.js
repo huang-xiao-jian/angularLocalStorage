@@ -6,6 +6,16 @@ angular.module('storage', [])
 		 */
 		var storage = (typeof $window.localStorage === 'undefined') ? undefined : $window.localStorage;
 		var privateMethods = {
+            resolveValue: function(key, value) {
+                if (angular.isDate(value)) {
+                    value = angular.toJson("love-date-json" + value.toJSON());
+                } else if (Object.prototype.toString.call(value) === '[object RegExp]'){
+                    value = angular.toJson("love-regexp-string" + value.toString());
+                } else {
+                    value = angular.toJson(value);
+                }
+                storage.setItem(key, value);
+            },
 			/**
 			 * Pass any type of a string from the localStorage to be parsed
 			 * @param res - a string that will be parsed for type
@@ -24,6 +34,14 @@ angular.module('storage', [])
 					if (val === 'false') {
 						val = false;
 					}
+                    if (val.indexOf('love-date-json') !== -1) {
+                        val = val.replace('love-date-json', '');
+                        val = new Date(val);
+                    }
+                    if (val.indexOf('love-regexp-string') !== -1) {
+                        val = val.split('/');
+                        val = new RegExp(val[1], val[2]);
+                    }
 				} catch (e) {
 					$log.info(e.message);
 				}
@@ -69,7 +87,7 @@ angular.module('storage', [])
 			   }
 
 			   try {
-                   storage.setItem(key, angular.toJson(value));
+                   privateMethods.resolveValue(key, value);
 			   } catch(e) {
                    $log.info(e.message);
 			   }
@@ -116,18 +134,21 @@ angular.module('storage', [])
 					case '$push':
 					    push(storageKey, value);
 					    break;
+                    case '$addToSet':
+                        addToSet(storageKey, value);
+                        break;
+                    case '$pull':
+                        pull(storageKey, value);
+                        break;
 					case '$unique':
 					    unique(storageKey);
-					    break;
-					case '$addToSet':
-					    addToSet(storageKey, value);
 					    break;
 					case '$extend':
 					    extend(storageKey, value);
 					    break;
 				}
 
-				function inc(storageKey,value){
+				function inc(storageKey, value){
 					var storageValue = publicMethods.get(storageKey);
 					if (angular.isNumber(storageValue)){
 				      storageValue +=value;
@@ -137,7 +158,7 @@ angular.module('storage', [])
 					}
 				}
 
-                function verse(storageKey, value) {
+                function verse(storageKey) {
                     var storageValue = publicMethods.get(storageKey);
                     if (angular.equals(storageValue, true)) {
                         storageValue = false;
@@ -150,17 +171,17 @@ angular.module('storage', [])
                     }
                 }
 
-				function push(storageKey,value){
+				function push(storageKey, value){
 					var storageValue = publicMethods.get(storageKey);
 					if(angular.isArray(storageValue)){
 					    storageValue = storageValue.concat(value);
-                        publicMethods.set(storageKey,storageValue);
+                        publicMethods.set(storageKey, storageValue);
 					}else{
 						return false;
 					}
 				}
 
-				function addToSet(storageKey,value){
+				function addToSet(storageKey, value){
                     var storageValue = publicMethods.get(storageKey);
                     if (angular.isArray(storageValue) && !angular.isArray(value)){
 		                if (!privateMethods.inArray(value, storageValue)) {
@@ -171,6 +192,19 @@ angular.module('storage', [])
 	                    return false;
 	                }     
 				}
+
+                function pull(storageKey, value) {
+                    var storageValue = publicMethods.get(storageKey);
+                    if(angular.isArray(storageValue)){
+                        while (storageValue.indexOf(value) !== -1) {
+                            var index = storageValue.indexOf(value);
+                            storageValue.splice(index, 1);
+                        }
+                        publicMethods.set(storageKey, storageValue);
+                    }else{
+                        return false;
+                    }
+                }
 
 				function unique(storageKey){
 					var storageValue = publicMethods.get(storageKey);
@@ -190,10 +224,9 @@ angular.module('storage', [])
 				}
 			},
 		
-
 			 /*
-			    A object to store unregisters functions that generate when apply $scope.$watch
-			    for unnecessary judge, store the functions seperately
+			    A object to store cancel functions that generate when apply $scope.$watch
+			    for unnecessary judge, store the functions seperate
 			 */
             "bindObjectReverse" : {},
 
@@ -207,8 +240,7 @@ angular.module('storage', [])
 			                      model or both way 
 
 			 */
-			bind: function($scope,modelKey,storageKey,direction){
-
+			bind: function($scope, modelKey, storageKey, direction){
                 switch (direction) {
                    case 'forward' :
                      forwardBind();
@@ -241,21 +273,20 @@ angular.module('storage', [])
 								return $parse(modelKey)($scope);
 							},
 		                    function(newVal,oldVal){
-		                    	publicMethods.set(storageKey,newVal);
+		                    	publicMethods.set(storageKey, newVal);
 		                    },
 		                    true
 						);
                     
 					$parse(modelKey).assign(publicMethods.bindObjectForward, tmp);
 				}				
-
 			},
 
 			/** unbind - cancel data-binding in single way or both way
 			 * @param $scope - this param is to inject $scope environment in my own opinion
 			 * @param modelKey - angular expression that will be used to get value from the $scope 
 			 * @param storageKey - the name of the localStorage item
-			 * @param direction - data-binding cancel dirction , from model to localstorage or from localstorage to 
+			 * @param direction - data-binding cancel direction , from model to local storage or from local storage to
 			                      model or both way 
 
 			 */
@@ -280,9 +311,7 @@ angular.module('storage', [])
                function forwardUnbind(){
                	  $parse(modelKey)(publicMethods.bindObjectForward).apply();
                }
-
 			}
-					
 		};
 		return publicMethods;
 	}]);  
