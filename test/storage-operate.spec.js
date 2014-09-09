@@ -35,7 +35,7 @@ describe("just check storage service basic API", function() {
     });
 });
 
-describe("just check storage service basic API", function() {
+describe("just check storage service higher API", function() {
     var storage;
 
     beforeEach(function () {
@@ -86,6 +86,12 @@ describe("just check storage service basic API", function() {
         storage.set('love', ['love', 'melon']);
         storage.update('$addToSet', 'love', 'melon');
         expect(storage.get('love')).toEqual(['love', 'melon']);
+    });
+
+    it('$pull modifier should work right', function () {
+        storage.set('love', ['story', 'melon', 'story']);
+        storage.update('$pull', 'love', 'story');
+        expect(storage.get('love')).toEqual(['melon']);
     });
 
     it('$unique modifier should work right', function () {

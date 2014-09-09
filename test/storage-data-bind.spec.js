@@ -1,4 +1,4 @@
-describe("just check storage service basic API", function() {
+describe("just check storage service date-bind API", function() {
     var $rootScope;
     var $scope;
     var storage;

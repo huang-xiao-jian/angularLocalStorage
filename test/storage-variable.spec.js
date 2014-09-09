@@ -39,13 +39,6 @@ describe("just check storage service variable type support", function() {
         expect(compare).toBeTruthy();
     });
 
-    it('just check object support', function () {
-        storage.set('love', {"first" : 123});
-        var getValue = storage.get('love');
-        var compare = angular.equals(getValue, {"first" : 123});
-        expect(compare).toBeTruthy();
-    });
-
     it('just check boolean support', function () {
         storage.set('love', true);
         var getValue = storage.get('love');
@@ -71,7 +64,7 @@ describe("just check storage service variable type support", function() {
         expect(getValue).toBeUndefined();
     });
 
-    xit('just check date support', function () {
+    it('just check date support', function () {
         var date = new Date();
         storage.set('love', date);
         var getValue = storage.get('love');
@@ -79,7 +72,7 @@ describe("just check storage service variable type support", function() {
         expect(compare).toBeTruthy();
     });
 
-    xit('just check regexp support', function () {
+    it('just check regexp support', function () {
         var regexp = new RegExp('^love', 'gi');
         storage.set('love', regexp);
         var getValue = storage.get('love');
