@@ -15,7 +15,7 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
 
 ## Attention :
 
-* You can directly store Objects, Arrays, Floats, Booleans, and Strings. No need to convert your javascript values from strings.
+* You can directly store Objects, Arrays, Floats, Booleans, and Strings. No need to convert your javascript values from strings. Till now, I add RegExps, Dates support.
 * No Fallback to Angular ``$cookies`` if localStorage is not supported
 * I follow the TDD rule to code this module , basic function works right, except the data binding, since I think it meaningless.
 * You can also see <https://github.com/agrublev/angularLocalStorage>
@@ -60,6 +60,7 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
   | ``$verse``           | to verse Booleans value |
   | ``$push``            |  to push new value into the stored array(array and other   variable type acceptalbe)
   | ``$addToset``    |  to push a new value(not array) that doesn't exist in the stored array |
+  | ``$pull``    |  to remove specific item in an array |
   | ``$unique``         |  unique the stored array,the third argument not in need |
   | ``$extend``      |  to update extend stored object by the passing-in value,passing-in value higher priority |
 
