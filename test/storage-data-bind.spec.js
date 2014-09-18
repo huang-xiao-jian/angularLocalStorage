@@ -17,43 +17,54 @@ describe("just check storage service date-bind API", function() {
 
     it('forward data-bind should work right', function () {
         $scope.modelKey = 123;
+        storage.set('storageKey', 'love');
         storage.bind($scope, 'modelKey', 'storageKey', 'forward');
         $scope.modelKey = 125;
         $scope.$digest();
         var getValue = storage.get('storageKey');
-        var compare = angular.equals(getValue, 125);
-        expect(compare).toBeTruthy();
+        expect(getValue).toEqual(125);
     });
 
-    xit('forward data-bind cancel should work right', function () {
+    it('forward data-bind cancel should work right', function () {
+        var getValue;
         $scope.modelKey = 123;
+        storage.set('storageKey', 'love');
         storage.bind($scope, 'modelKey', 'storageKey', 'forward');
-        storage.unbind($scope, 'modelKey', 'storageKey', 'forward');
         $scope.modelKey = 125;
         $scope.$digest();
-        var getValue = storage.get('storageKey');
-        expect(getValue).toEqual(123);
+        getValue = storage.get('storageKey');
+        expect(getValue).toEqual(125);
+        storage.unbind($scope, 'modelKey', 'storageKey', 'forward');
+        $scope.modelKey = 127;
+        $scope.$digest();
+        getValue = storage.get('storageKey');
+        expect(getValue).toEqual(125);
     });
 
     it('reverse data-bind should work right', function () {
         storage.set('storageKey', 123);
+        $scope.modelKey = 'love';
         storage.bind($scope, 'modelKey', 'storageKey', 'reverse');
         storage.set('storageKey', 125);
         $scope.$digest();
         var getValue = $scope.modelKey;
-        var compare = angular.equals(getValue, 125);
-        expect(compare).toBeTruthy();
+        expect(getValue).toEqual(125);
     });
 
-    xit('reverse data-bind calcel should work right', function () {
+    it('reverse data-bind cancel should work right', function () {
+        var getValue;
         storage.set('storageKey', 123);
+        $scope.modelKey = 'love';
         storage.bind($scope, 'modelKey', 'storageKey', 'reverse');
-        storage.unbind($scope, 'modelKey', 'storageKey', 'reverse');
         storage.set('storageKey', 125);
         $scope.$digest();
-        var getValue = $scope.modelKey;
-        var compare = angular.equals(getValue, 125);
-        expect(compare).toBeTruthy();
+        getValue = $scope.modelKey;
+        expect(getValue).toEqual(125);
+        storage.unbind($scope, 'modelKey', 'storageKey', 'reverse');
+        storage.set('storageKey', 127);
+        $scope.$digest();
+        getValue = $scope.modelKey;
+        expect(getValue).toEqual(125);
     });
 
     afterEach(function () {

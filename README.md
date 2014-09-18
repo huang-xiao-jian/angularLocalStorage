@@ -1,7 +1,7 @@
 angularLocalStorage 
 ====================
-[![Build Status](https://travis-ci.org/bornkiller/angularLocalStorage.svg?branch=master)](https://travis-ci.org/bornkiller/angularLocalStorage)
-[![Coverage Status](https://coveralls.io/repos/bornkiller/angularLocalStorage/badge.png?branch=master)](https://coveralls.io/r/bornkiller/angularLocalStorage?branch=master)
+![Build Status](https://img.shields.io/travis/bornkiller/angularLocalStorage/master.svg?style=flat)
+![Coverage Report](http://img.shields.io/coveralls/bornkiller/angularLocalStorage.svg?style=flat)
 
 The simpliest localStorage module you will ever use. Allowing you to set, get, and *bind* variables.
 
@@ -13,7 +13,7 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
 <script src="src/storage.js></script>
 ```
 
-## Attention :
+## Attention 
 
 * You can directly store Objects, Arrays, Floats, Booleans, and Strings. No need to convert your javascript values from strings. Till now, I add RegExps, Dates support.
 * No Fallback to Angular ``$cookies`` if localStorage is not supported

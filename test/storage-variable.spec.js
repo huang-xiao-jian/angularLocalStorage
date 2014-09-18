@@ -46,16 +46,17 @@ describe("just check storage service variable type support", function() {
         expect(compare).toBeTruthy();
     });
 
+    it('just check boolean support', function () {
+        storage.set('love', false);
+        var getValue = storage.get('love');
+        var compare = angular.equals(getValue, false);
+        expect(compare).toBeTruthy();
+    });
+
     it('just check null support', function () {
         storage.set('love', null);
         var getValue = storage.get('love');
         expect(getValue).toBeNull();
-    });
-
-    it('just check undefined support', function () {
-        storage.set('love', undefined);
-        var getValue = storage.get('love');
-        expect(getValue).toBeUndefined();
     });
 
     it('just check undefined support', function () {
@@ -77,5 +78,13 @@ describe("just check storage service variable type support", function() {
         storage.set('love', regexp);
         var getValue = storage.get('love');
         expect(getValue.test('love story')).toBeTruthy();
+    });
+
+    it('just check repeated set not throw error', function () {
+        var repeated = function() {
+            storage.set('love', true);
+            storage.set('love', 'the last of US');
+        };
+        expect(repeated).not.toThrow();
     });
 });

@@ -26,15 +26,6 @@ angular.module('storage', [])
 				var val;
 				try {
 					val = angular.fromJson(res);
-					if (typeof val === 'undefined') {
-						val = 'undefined';
-					}
-					if (val === 'true') {
-						val = true;
-					}
-					if (val === 'false') {
-						val = false;
-					}
                     if (val.indexOf('love-date-json') !== -1) {
                         val = val.replace('love-date-json', '');
                         val = new Date(val);
@@ -151,9 +142,10 @@ angular.module('storage', [])
 
 				function inc(storageKey, value){
 					var storageValue = publicMethods.get(storageKey);
-					if (angular.isNumber(storageValue)){
-				      storageValue +=value;
-                      publicMethods.set(storageKey, storageValue);
+					if (angular.isNumber(storageValue) && angular.isNumber(value)){
+				        storageValue +=value;
+                        publicMethods.set(storageKey, storageValue);
+                        return true;
 					} else {
 						return false;
 					}
@@ -164,9 +156,11 @@ angular.module('storage', [])
                     if (angular.equals(storageValue, true)) {
                         storageValue = false;
                         publicMethods.set(storageKey, storageValue);
+                        return true;
                     } else if (angular.equals(storageValue, false)) {
                         storageValue = true;
                         publicMethods.set(storageKey, storageValue);
+                        return true;
                     } else {
                         return false;
                     }
@@ -177,6 +171,7 @@ angular.module('storage', [])
 					if(angular.isArray(storageValue)){
 					    storageValue = storageValue.concat(value);
                         publicMethods.set(storageKey, storageValue);
+                        return true;
 					}else{
 						return false;
 					}
@@ -189,6 +184,7 @@ angular.module('storage', [])
 		                    storageValue.push(value);
 		                }
                         publicMethods.set(storageKey, storageValue);
+                        return true;
                     }else{
 	                    return false;
 	                }     
@@ -202,6 +198,7 @@ angular.module('storage', [])
                             storageValue.splice(index, 1);
                         }
                         publicMethods.set(storageKey, storageValue);
+                        return true;
                     }else{
                         return false;
                     }
@@ -210,7 +207,8 @@ angular.module('storage', [])
 				function unique(storageKey){
 					var storageValue = publicMethods.get(storageKey);
 					if(angular.isArray(storageValue)){
-                      publicMethods.set(storageKey,privateMethods.unique(storageValue));
+                        publicMethods.set(storageKey,privateMethods.unique(storageValue));
+                        return true;
 					}else{
 						return false;
 					}
@@ -221,7 +219,10 @@ angular.module('storage', [])
 					if(angular.isObject(storageValue) && angular.isObject(value)){
 						angular.extend(storageValue, value);
 						publicMethods.set(storageKey,storageValue);
-					}
+                        return true;
+					} else {
+                        return false;
+                    }
 				}
 			},
 		
@@ -237,7 +238,7 @@ angular.module('storage', [])
 			 * @param $scope - this param is to inject $scope environment in my own opinion
 			 * @param modelKey - angular expression that will be used to get value from the $scope 
 			 * @param storageKey - the name of the localStorage item
-			 * @param direction - data-binding dirction , from model to localstorage or from localstorage to 
+			 * @param direction - data-binding direction , from model to localstorage or from localstorage to
 			                      model or both way 
 
 			 */
@@ -306,11 +307,11 @@ angular.module('storage', [])
                 }
 
                function reverseUnbind(){
-               	  $parse(storageKey)(publicMethods.bindObjectReverse).apply();
+               	  $parse(storageKey)(publicMethods.bindObjectReverse).apply(this);
                }
 
                function forwardUnbind(){
-               	  $parse(modelKey)(publicMethods.bindObjectForward).apply();
+               	   $parse(modelKey)(publicMethods.bindObjectForward).apply(this);
                }
 			}
 		};
