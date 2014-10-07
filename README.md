@@ -54,15 +54,15 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
 4. About  update method
    ``update(modifier, storageKey, value)``
 
-  | modifier                | feature        |
+  | modifier             | feature        |
   | :------------------: | :------------- |
-  | ``$inc``               |  to plus a number for the stored value(negative acceptable)     |
+  | ``$inc``             | to plus a number for the stored value(negative acceptable) |
   | ``$verse``           | to verse Booleans value |
-  | ``$push``            |  to push new value into the stored array(array and other   variable type acceptalbe)
-  | ``$addToset``    |  to push a new value(not array) that doesn't exist in the stored array |
-  | ``$pull``    |  to remove specific item in an array |
-  | ``$unique``         |  unique the stored array,the third argument not in need |
-  | ``$extend``      |  to update extend stored object by the passing-in value,passing-in value higher priority |
+  | ``$push``            | to push new value into the stored array(array and other   variable type acceptalbe) |
+  | ``$addToset``        | to push a new value(not array) that doesn't exist in the stored array |
+  | ``$pull``            | to remove specific item in an array |
+  | ``$unique``          | unique the stored array,the third argument not in need |
+  | ``$extend``          | to update extend stored object by the passing-in value,passing-in value higher priority |
 
   For example 
   ```javascript
@@ -99,6 +99,7 @@ The simpliest localStorage module you will ever use. Allowing you to set, get, a
   | :------------------: | :-------------                 |
   | forward              | sync from model to localstorage|
   | reverse              | sync from localstorage to model|
+  | normal               | sync both way                  |
   | default              | sync forward way               |
 
   Compare with agrublev , I had modified all the code about data-binding for more simple use. 
