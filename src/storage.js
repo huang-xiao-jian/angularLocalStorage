@@ -250,6 +250,10 @@ angular.module('storage', [])
                    case 'reverse' :
                      reverseBind();
                      break;
+                    case 'normal' :
+                     forwardBind();
+                     reverseBind();
+                     break;
                    default :
                      forwardBind();
                      break;                                
@@ -300,7 +304,11 @@ angular.module('storage', [])
                      break;
                    case 'reverse' :
                      reverseUnbind();
-                     break;                              
+                     break;
+                    case 'normal' :
+                        forwardUnbind();
+                        reverseUnbind();
+                        break;
                    default :
                      forwardUnbind();
                      break;                                

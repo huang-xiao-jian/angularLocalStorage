@@ -67,6 +67,47 @@ describe("just check storage service date-bind API", function() {
         expect(getValue).toEqual(125);
     });
 
+    it('normal data-bind should work right', function () {
+        var getValue;
+        $scope.modelKey = 123;
+        storage.set('storageKey', 'love');
+        storage.bind($scope, 'modelKey', 'storageKey', 'normal');
+        $scope.modelKey = 125;
+        $scope.$digest();
+        getValue = storage.get('storageKey');
+        expect(getValue).toEqual(125);
+        storage.set('storageKey', 123);
+        $scope.$digest();
+        getValue = $scope.modelKey;
+        expect(getValue).toEqual(123);
+    });
+
+    it('forward data-bind cancel should work right', function () {
+        var getValue;
+        $scope.modelKey = 123;
+        storage.set('storageKey', 'love');
+        storage.bind($scope, 'modelKey', 'storageKey', 'normal');
+        $scope.modelKey = 125;
+        $scope.$digest();
+        getValue = storage.get('storageKey');
+        expect(getValue).toEqual(125);
+        storage.set('storageKey', 123);
+        $scope.$digest();
+        getValue = $scope.modelKey;
+        expect(getValue).toEqual(123);
+
+        storage.unbind($scope, 'modelKey', 'storageKey', 'normal');
+        $scope.modelKey = 127;
+        $scope.$digest();
+        getValue = storage.get('storageKey');
+        expect(getValue).toEqual(123);
+
+        storage.set('storageKey', 129);
+        $scope.$digest();
+        getValue = $scope.modelKey;
+        expect(getValue).toEqual(127);
+    });
+
     afterEach(function () {
         storage.clear();
         $scope = null;
