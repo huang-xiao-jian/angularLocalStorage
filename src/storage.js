@@ -23,19 +23,17 @@ angular.module('storage', [])
 			 * @returns {*} - whatever the real value of stored value was
 			 */
 			parseValue: function (res) {
-				var val;
-				try {
-					val = angular.fromJson(res);
+				var val = angular.fromJson(res);
+
+				if (Object.prototype.toString.call(val) === '[object Object]' &&
+					Object.prototype.toString.call(val.indexOf) === '[object Function]') {
                     if (val.indexOf('love-date-json') !== -1) {
                         val = val.replace('love-date-json', '');
                         val = new Date(val);
-                    }
-                    if (val.indexOf('love-regexp-string') !== -1) {
+                    } else if (val.indexOf('love-regexp-string') !== -1) {
                         val = val.split('/');
                         val = new RegExp(val[1], val[2]);
                     }
-				} catch (e) {
-					$log.info(e.message);
 				}
 				return val;
 			},
