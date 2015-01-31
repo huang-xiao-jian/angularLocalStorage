@@ -25,7 +25,8 @@ angular.module('storage', [])
 			parseValue: function (res) {
 				var val = angular.fromJson(res);
 
-        if (Object.prototype.toString.call(val) === '[object Object]') {
+				if (Object.prototype.toString.call(val) === '[object Object]' &&
+					Object.prototype.toString.call(val.indexOf) === '[object Function]') {
                     if (val.indexOf('love-date-json') !== -1) {
                         val = val.replace('love-date-json', '');
                         val = new Date(val);
