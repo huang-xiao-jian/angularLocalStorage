@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         },
 
         continuous: {
-            // preprocess matching files before serving them to the browser
+            // pre-process matching files before serving them to the browser
             // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
             preprocessors: {
                 // source files, that you wanna generate coverage for
@@ -24,13 +24,7 @@ module.exports = function(grunt) {
             // available reporters: https://npmjs.org/browse/keyword/karma-reporter
             // plugin support: junit, should config junitReporter in use
             // plugin support: coverage, should config coverageReporter and preprocessors in use
-            reporters: ['progress','coverage','junit'],
-
-
-            // optionally, configure the reporter
-            junitReporter: {
-                outputFile: 'test-results.xml'
-            },
+            reporters: ['coverage'],
 
 
             // optionally, configure the reporter
@@ -43,8 +37,8 @@ module.exports = function(grunt) {
 
             // start these browsers
             // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-            // available options 'Chrome', 'IE', 'Firefox', 'PhantomJS'while 'IE8','IE9' appoaching
-            browsers: ['PhantomJS'],
+            // available options 'Chrome', 'IE', 'Firefox', 'PhantomJS' while 'IE8','IE9' approaching
+            browsers: ['PhantomJS', 'Firefox'],
 
 
             // Continuous Integration mode
@@ -54,7 +48,7 @@ module.exports = function(grunt) {
     }
   });
 
+
   // 任务加载
   grunt.loadNpmTasks('grunt-karma');
-
 };

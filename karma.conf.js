@@ -4,6 +4,7 @@
 module.exports = function(config) {
   config.set({
 
+
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
@@ -25,6 +26,8 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     reporters: ['progress'],
+
+
     // web server port
     port: 9876,
 
@@ -46,6 +49,7 @@ module.exports = function(config) {
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     // available options 'Chrome', 'IE', 'Firefox', 'PhantomJS'while 'IE8','IE9' appoaching
     browsers: ['Chrome'],
+
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
