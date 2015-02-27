@@ -9,8 +9,10 @@ The simplest localStorage module you will ever use. Allowing you to set, get, an
 
 ##Install
 
-	bower install https://github.com/bornkiller/angularLocalStorage.git
-   
+```shell
+bower install angularLocalStorage-modern --save
+```
+
 ```html
 <script src="src/storage.js></script>
 ```
