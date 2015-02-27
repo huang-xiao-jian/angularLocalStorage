@@ -20,7 +20,8 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/grunt karma",
-    "prepare-test": "npm install bower grunt grunt-cli"
+    "prepare-test": "npm install bower grunt grunt-cli",
+    "prepare-dependency": "./node_modules/.bin/bower -F install"
   },
   "author": "bornkiller",
   "license": "MIT"
