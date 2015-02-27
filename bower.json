@@ -1,6 +1,6 @@
 {
   "name": "angularLocalStorage-modern",
-  "version": "0.5.0",
+  "version": "0.5.5",
   "homepage": "https://github.com/bornkiller/angularLocalStorage",
   "repository": "https://github.com/bornkiller/angularLocalStorage.git",
   "authors": [
@@ -16,7 +16,9 @@
     "node_modules",
     "bower_components",
     "test",
-    "examples",
+    "example",
+    "karma.conf.js",
+    "Gruntfile.js",
     ".*"
   ],
   "dependencies": {},
