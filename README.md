@@ -2,8 +2,10 @@ angularLocalStorage
 ====================
 ![Build Status](https://img.shields.io/travis/bornkiller/angularLocalStorage/master.svg?style=flat)
 ![Coverage Report](http://img.shields.io/coveralls/bornkiller/angularLocalStorage.svg?style=flat)
+![Package Dependency](https://david-dm.org/bornkiller/angularLocalStorage.svg?style=flat)
+![Package DevDependency](https://david-dm.org/bornkiller/angularLocalStorage/dev-status.svg?style=flat)
 
-The simpliest localStorage module you will ever use. Allowing you to set, get, and *bind* variables.
+The simplest localStorage module you will ever use. Allowing you to set, get, and *bind* variables.
 
 ##Install
 

@@ -38,7 +38,7 @@ module.exports = function(grunt) {
             // start these browsers
             // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
             // available options 'Chrome', 'IE', 'Firefox', 'PhantomJS' while 'IE8','IE9' approaching
-            browsers: ['PhantomJS', 'Firefox'],
+            browsers: ['PhantomJS'],
 
 
             // Continuous Integration mode
