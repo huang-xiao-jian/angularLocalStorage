@@ -8,7 +8,9 @@ angular.module('storage', [])
 		var storage = (typeof $window.localStorage === 'undefined') ? undefined : $window.localStorage;
 		var privateMethods = {
             resolveValue: function(key, value) {
-                if (angular.isDate(value)) {
+                if (angular.isUndefined(value)) {
+                    value = angular.toJson("love-undefined-json");
+                } else if (angular.isDate(value)) {
                     value = angular.toJson("love-date-json" + value.toJSON());
                 } else if (Object.prototype.toString.call(value) === '[object RegExp]'){
                     value = angular.toJson("love-regexp-string" + value.toString());
@@ -23,19 +25,18 @@ angular.module('storage', [])
 			 * @returns {*} - whatever the real value of stored value was
 			 */
 			parseValue: function (res) {
-				var val;
-				try {
-					val = angular.fromJson(res);
-                    if (val.indexOf('love-date-json') !== -1) {
+				var val = angular.fromJson(res);
+
+				if (Object.prototype.toString.call(val) === '[object String]') {
+                    if (val.indexOf('love-undefined-json') !== -1) {
+                        val = undefined;
+                    } else if (val.indexOf('love-date-json') !== -1) {
                         val = val.replace('love-date-json', '');
                         val = new Date(val);
-                    }
-                    if (val.indexOf('love-regexp-string') !== -1) {
+                    } else if (val.indexOf('love-regexp-string') !== -1) {
                         val = val.split('/');
                         val = new RegExp(val[1], val[2]);
                     }
-				} catch (e) {
-					$log.info(e.message);
 				}
 				return val;
 			},

@@ -12,9 +12,9 @@ describe("just check storage service variable type support", function() {
     });
 
     it('just check number support', function () {
-        storage.set('love', 123);
+        storage.set('love', 123.45);
         var getValue = storage.get('love');
-        var compare = angular.equals(getValue, 123);
+        var compare = angular.equals(getValue, 123.45);
         expect(compare).toBeTruthy();
     });
 
@@ -39,14 +39,14 @@ describe("just check storage service variable type support", function() {
         expect(compare).toBeTruthy();
     });
 
-    it('just check boolean support', function () {
+    it('just check boolean true support', function () {
         storage.set('love', true);
         var getValue = storage.get('love');
         var compare = angular.equals(getValue, true);
         expect(compare).toBeTruthy();
     });
 
-    it('just check boolean support', function () {
+    it('just check boolean false support', function () {
         storage.set('love', false);
         var getValue = storage.get('love');
         var compare = angular.equals(getValue, false);
