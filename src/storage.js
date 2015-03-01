@@ -1,72 +1,55 @@
-angular.module('storage', [])
-  .factory('storage', ['$parse','$window', '$log',
-      function ($parse, $window, $log) {
-      	'use strict';
-		/**
-		 * Global Vars
-		 */
-		var storage = (typeof $window.localStorage === 'undefined') ? undefined : $window.localStorage;
-		var privateMethods = {
-            resolveValue: function(key, value) {
-                if (angular.isDate(value)) {
-                    value = angular.toJson("love-date-json" + value.toJSON());
-                } else if (Object.prototype.toString.call(value) === '[object RegExp]'){
-                    value = angular.toJson("love-regexp-string" + value.toString());
-                } else {
-                    value = angular.toJson(value);
-                }
-                storage.setItem(key, value);
-            },
-			/**
-			 * Pass any type of a string from the localStorage to be parsed
-			 * @param res - a string that will be parsed for type
-			 * @returns {*} - whatever the real value of stored value was
-			 */
-			parseValue: function (res) {
-				var val;
-				try {
-					val = angular.fromJson(res);
-                    if (val.indexOf('love-date-json') !== -1) {
-                        val = val.replace('love-date-json', '');
-                        val = new Date(val);
-                    }
-                    if (val.indexOf('love-regexp-string') !== -1) {
-                        val = val.split('/');
-                        val = new RegExp(val[1], val[2]);
-                    }
-				} catch (e) {
-					$log.info(e.message);
-				}
-				return val;
-			},
+'use strict';
 
-			inArray : function(needle,array){  
-               if(angular.isArray(array)){
-               	  var flag = false;
-          	      angular.forEach(array, function(value){
-          	      	 if(angular.equals(needle,value)){
-          	      	 	flag = true;
-          	      	 }
-          	      });
-          	      return flag;
-               }
-			},
+angular.module('storage.utils', [])
+	.factory('storageUtils', ['$log', function($log) {
+		var destiny = {};
 
-			unique : function(array){
-               if(angular.isArray(array)){
-				   var tmp = {}, destiny = [];
-				   angular.forEach(array, function(value){
-				      if(!tmp.hasOwnProperty(value)) {
-				         destiny.push(value);
-				         tmp[value] = 1;	
-				      }			   	
-				   });
-				   return destiny;               	
-               }
-			}  
+		destiny.resolveValue = function(value) {
+			if (angular.isUndefined(value)) return null;
+			if (angular.isDate(value)) return JSON.stringify('RESERVED-DATE' + value.toJSON());
+			if (Object.prototype.toString.call(value) === '[object RegExp]') return JSON.stringify('RESERVED-REGEXP' + value.toString());
+			return JSON.stringify(value);
 		};
 
-		var publicMethods = {
+		destiny.parseValue = function(value) {
+			if (value === null) return null;
+			if (value.indexOf('RESERVED-DATE') !== -1)  {
+				return new Date(JSON.parse(value).replace('RESERVED-DATE', ''));
+			}
+			if (value.indexOf('RESERVED-REGEXP') !== -1) {
+				var splitArray = JSON.parse(value).replace('RESERVED-REGEXP').split('/').slice(1);
+				var flag = splitArray.pop();
+				return new RegExp(splitArray.join('/'), flag);
+			}
+			return JSON.parse(value);
+		};
+
+		destiny.inArray = function(array, target) {
+			if (!angular.isArray(array)) return false;
+			return array.indexOf(target) !== -1;
+		};
+
+		destiny.uniqueArray = function(array) {
+			if (!angular.isArray(array)) return false;
+			var container = [];
+			return array.filter(function(item) {
+				if (container.indexOf(item) === -1) {
+					container.push(item);
+					return true;
+				} else {
+					return false;
+				}
+			});
+		};
+
+		return destiny;
+	}]);
+
+angular.module('storage', ['storage.utils'])
+  .factory('storage', ['$parse','$window', '$log', 'storageUtils',
+		function ($parse, $window, $log, storageUtils) {
+		  var storage = $window.localStorage;
+  		var publicMethods = {
 			/**
 			 * Set - let's you set a new localStorage key pair set
 			 * @param key - a string that will be used as the accessor for the pair
