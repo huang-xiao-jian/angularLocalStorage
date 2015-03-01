@@ -1,4 +1,4 @@
-describe("just check storage.utils module normal function", function() {
+xdescribe("just check storage.utils module normal function", function() {
   var utils;
 
   beforeEach(function(){

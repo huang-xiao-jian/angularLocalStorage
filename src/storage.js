@@ -21,6 +21,7 @@ angular.module('storage.utils', [])
 				var flag = splitArray.pop();
 				return new RegExp(splitArray.join('/'), flag);
 			}
+			if (angular.isString(value)) return value;
 			return JSON.parse(value);
 		};
 
@@ -47,49 +48,62 @@ angular.module('storage', ['storage.utils'])
   .factory('storage', ['$parse','$window', '$log', 'storageUtils',
 		function ($parse, $window, $log, storageUtils) {
 		  var storage = $window.localStorage;
-  		var publicMethods = {
-			/**
-			 * Set - let's you set a new localStorage key pair set
-			 * @param key - a string that will be used as the accessor for the pair
-			 * @param value - the value of the localStorage item
-			 * @exception - the localstorage has size limit  
-			 */
-			set: function (key, value) {
-			   if(storage.getItem(key)){
-				   storage.removeItem(key);	
-			   }
-
-			   try {
-                   privateMethods.resolveValue(key, value);
-			   } catch(e) {
-                   $log.info(e.message);
-			   }
-			   
-			},
-
+			var destiny = {};
 			/**
 			 * Get - let's you get the value of any pair you've stored
 			 * @param key - the string that you set as accessor for the pair
 			 * @returns {*} - Object,String,Float,Boolean depending on what you stored
 			 */
-			get: function (key) {
-				return privateMethods.parseValue(storage.getItem(key));
-			},
+			destiny.get = function(key) {
+				return storageUtils.parseValue(storage.getItem(key));
+			};
+
+			/**
+			 * getByIndex - let's you get the value of any pair you've stored by index
+			 * @param index - the index you expected for the pair
+			 * @returns {*} - Object,String,Float,Boolean depending on what you stored
+			 */
+			destiny.getByIndex = function(index) {
+				return storageUtils.parseValue(storage.getItem(storage.key(index)));
+			};
+
+			/**
+			 * Set - let's you set a new localStorage key pair set
+			 * @param key - a string that will be used as the accessor for the pair
+			 * @param value - the value of the localStorage item
+			 * @exception - the localstorage has size limit
+			 */
+		  destiny.set = function(key, value) {
+				if(storage.getItem(key)) storage.removeItem(key);
+				storage.setItem(key, value);
+			};
 
 			/**
 			 * Remove - let's you nuke a value from localStorage
 			 * @param key - the accessor value
 			 */
-			remove: function (key) {
+			destiny.remove = function(key) {
 				storage.removeItem(key);
-			},
+			};
 
 			/**
 			 * Clear All - let's you clear out ALL localStorage variables, use this carefully!
 			 */
- 			clear: function() {
+			destiny.clear = function() {
 				storage.clear();
-			},
+			};
+
+			/**
+			 * getSize - let's you get localStorage variables length
+			 */
+			destiny.getSize = function() {
+				return storage.length;
+			};
+
+
+  		var publicMethods = {
+
+
 
 			/** Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
              * @param modify - shorthand method
@@ -304,5 +318,5 @@ angular.module('storage', ['storage.utils'])
                }
 			}
 		};
-		return publicMethods;
+		return destiny;
 	}]);  
