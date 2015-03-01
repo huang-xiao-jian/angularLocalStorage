@@ -25,12 +25,10 @@ angular.module('storage.utils', [])
 		};
 
 		destiny.inArray = function(array, target) {
-			if (!angular.isArray(array)) return false;
 			return array.indexOf(target) !== -1;
 		};
 
 		destiny.uniqueArray = function(array) {
-			if (!angular.isArray(array)) return false;
 			var container = [];
 			return array.filter(function(item) {
 				if (container.indexOf(item) === -1) {

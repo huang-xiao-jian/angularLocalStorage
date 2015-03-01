@@ -58,4 +58,15 @@ describe("just check storage.utils module normal function", function() {
     expect(result).toEqual(jasmine.any(RegExp));
     expect(result.test('love is colorful')).toBeTruthy();
   });
+
+  it('just check inArray function', function () {
+    var source = ["one", "two", "three"];
+    expect(utils.inArray(source, "one")).toBeTruthy();
+    expect(utils.inArray(source, "fifth")).toBeFalsy();
+  });
+
+  it('just check uniqueArray function', function () {
+    var source = ["one", "two", "one", "three", "two"];
+    expect(utils.uniqueArray(source)).toEqual(["one", "two", "three"]);
+  });
 });

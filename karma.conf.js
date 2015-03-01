@@ -19,7 +19,7 @@ module.exports = function(config) {
         'bower_components/angular/angular.js',
         'bower_components/angular-mocks/angular-mocks.js',
         'src/storage.js',
-        'test/*.spec.js'
+        'test/storage-utils.spec.js'
     ],
 
 
