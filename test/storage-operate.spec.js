@@ -1,47 +1,47 @@
 xdescribe('just check storage service basic API', function() {
-  var storage;
+  var storageOperate;
 
   beforeEach(function () {
-    module('storage');
+    module('storage.operate');
   });
 
   beforeEach(function () {
-    inject(function (_storage_) {
-      storage = _storage_;
+    inject(function (_storageOperate_) {
+      storageOperate = _storageOperate_;
     });
   });
 
   it('Storage set/get should cooperate well', function () {
-    storage.set('story', 'love is color blind');
-    expect(storage.get('story')).toEqual('love is color blind');
+    storageOperate.set('story', 'love is color blind');
+    expect(storageOperate.get('story')).toEqual('love is color blind');
   });
 
   it('Storage remove method should work right', function () {
-    storage.set('story', 'love is color blind');
-    storage.remove("love");
-    expect(storage.get("love")).toBeNull();
+    storageOperate.set('story', 'love is color blind');
+    storageOperate.remove("love");
+    expect(storageOperate.get("love")).toBeNull();
   });
 
   it('Storage clear method should work right', function () {
-    storage.set('story', 'love is color blind');
-    storage.set('content', 'forever girl');
-    storage.clear();
-    expect(storage.get('love')).toBeNull();
-    expect(storage.get('content')).toBeNull();
+    storageOperate.set('story', 'love is color blind');
+    storageOperate.set('content', 'forever girl');
+    storageOperate.clear();
+    expect(storageOperate.get('love')).toBeNull();
+    expect(storageOperate.get('content')).toBeNull();
   });
 
   it('Storage getSize method should work right', function () {
-    storage.set('story', 'love is color blind');
-    storage.set('content', 'forever girl');
-    expect(storage.getSize()).toEqual(2);
-    storage.clear();
+    storageOperate.set('story', 'love is color blind');
+    storageOperate.set('content', 'forever girl');
+    expect(storageOperate.getSize()).toEqual(2);
+    storageOperate.clear();
   });
 
   it('Storage getByIndex method should work right', function () {
-    storage.set('story', 'love is color blind');
-    storage.set('content', 'forever girl');
-    expect(storage.getByIndex(0)).toEqual('forever girl');
-    expect(storage.getByIndex(1)).toEqual('love is color blind');
-    storage.clear();
+    storageOperate.set('story', 'love is color blind');
+    storageOperate.set('content', 'forever girl');
+    expect(storageOperate.getByIndex(0)).toEqual('forever girl');
+    expect(storageOperate.getByIndex(1)).toEqual('love is color blind');
+    storageOperate.clear();
   });
 });
