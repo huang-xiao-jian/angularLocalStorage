@@ -164,139 +164,80 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
     return destiny;
   }]);
 
+angular.module('storage.through', ['storage.operate', 'storage.utils'])
+  .directive('storageBind', ['storageOperate', 'storageUtils', '$log', function(storageOperate, storageUtils, $log) {
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      scope: {
+        'storageBind': '@',
+        'storageBindDirection': '@'
+      },
+      link: function(scope, element, attr, ngModel) {
+        if (storageOperate.get(scope.storageBind)) ngModel.$setViewValue(storageOperate.get(scope.storageBind));
+        var forward = function() {
+          ngModel.$parsers.push(function(value) {
+            if (value) storageOperate.set(scope.storageBind, value);
+            return value;
+          });
+        };
+        var reverse = function() {
+          ngModel.$formatters.push(function(value) {
+            if (value) storageOperate.set(scope.storageBind, value);
+            return value;
+          });
+        };
+        switch (scope.storageBindDirection) {
+          case 'forward':
+            forward.apply();
+            break;
+          case 'reverse':
+            reverse.apply();
+            break;
+          case 'normal':
+            forward.apply();
+            reverse.apply();
+            break;
+        }
+      }
+    }
+  }]);
+
 angular.module('storage', ['storage.operate', 'storage.update'])
   .factory('storage', ['$parse', 'storageOperate', 'storageUpdate', '$log',
     function ($parse, storageOperate, storageUpdate, $log) {
-  		var publicMethods = {
-			/** Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
-             * @param modify - shorthand method
-			 * @param storageKey - a string that will be used as the accessor for the pair
-			 * @param value - the value of the localStorage item
-			 */
-			update:function(modify, storageKey, value){
-				switch(modify){
-					case '$inc':
-					    inc(storageKey, value);
-					    break;
-                    case '$verse':
-                        verse(storageKey, value);
-                        break;
-					case '$push':
-					    push(storageKey, value);
-					    break;
-                    case '$addToSet':
-                        addToSet(storageKey, value);
-                        break;
-                    case '$pull':
-                        pull(storageKey, value);
-                        break;
-					case '$unique':
-					    unique(storageKey);
-					    break;
-					case '$extend':
-					    extend(storageKey, value);
-					    break;
-				}
+      var destiny = angular.copy(storageOperate);
 
-
-			},
-		
-			 /*
-			    A object to store cancel functions that generate when apply $scope.$watch
-			    for unnecessary judge, store the functions seperate
-			 */
-            "bindObjectReverse" : {},
-
-            "bindObjectForward" : {},
-
-			/** Bind - Make a data-binding in single way or both way
-			 * @param $scope - this param is to inject $scope environment in my own opinion
-			 * @param modelKey - angular expression that will be used to get value from the $scope 
-			 * @param storageKey - the name of the localStorage item
-			 * @param direction - data-binding direction , from model to localstorage or from localstorage to
-			                      model or both way 
-
-			 */
-			bind: function($scope, modelKey, storageKey, direction){
-                switch (direction) {
-                   case 'forward' :
-                     forwardBind();
-                     break;
-                   case 'reverse' :
-                     reverseBind();
-                     break;
-                    case 'normal' :
-                     forwardBind();
-                     reverseBind();
-                     break;
-                   default :
-                     forwardBind();
-                     break;                                
-                }
-
-				function reverseBind(){
-					var tmp = $scope.$watch(
-							function (){
-								return publicMethods.get(storageKey);
-							},
-		                    function(newVal){
-		                       $parse(modelKey).assign($scope, newVal);
-		                    },
-		                    true
-						);
-
-                    $parse(storageKey).assign(publicMethods.bindObjectReverse, tmp);	
-				}
-
-				function forwardBind(){
-					var tmp = $scope.$watch(
-							function(){
-								return $parse(modelKey)($scope);
-							},
-		                    function(newVal){
-		                    	publicMethods.set(storageKey, newVal);
-		                    },
-		                    true
-						);
-                    
-					$parse(modelKey).assign(publicMethods.bindObjectForward, tmp);
-				}				
-			},
-
-			/** unbind - cancel data-binding in single way or both way
-			 * @param $scope - this param is to inject $scope environment in my own opinion
-			 * @param modelKey - angular expression that will be used to get value from the $scope 
-			 * @param storageKey - the name of the localStorage item
-			 * @param direction - data-binding cancel direction , from model to local storage or from local storage to
-			                      model or both way 
-
-			 */
-			unbind : function($scope, modelKey, storageKey, direction){
-
-                switch (direction) {
-                   case 'forward' :
-                     forwardUnbind();
-                     break;
-                   case 'reverse' :
-                     reverseUnbind();
-                     break;
-                    case 'normal' :
-                        forwardUnbind();
-                        reverseUnbind();
-                        break;
-                   default :
-                     forwardUnbind();
-                     break;                                
-                }
-
-               function reverseUnbind(){
-               	  $parse(storageKey)(publicMethods.bindObjectReverse).apply(this);
-               }
-
-               function forwardUnbind(){
-               	   $parse(modelKey)(publicMethods.bindObjectForward).apply(this);
-               }
-			}
-		};
+      /**
+       * Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
+       * @param modify - shorthand method
+       * @param storageKey - a string that will be used as the accessor for the pair
+       * @param value - the value of the localStorage item
+       */
+      destiny.update = function(modify, storageKey, value) {
+        switch(modify){
+          case '$inc':
+            storageUpdate.$inc(storageKey, value);
+            break;
+          case '$verse':
+            storageUpdate.$verse(storageKey, value);
+            break;
+          case '$push':
+            storageUpdate.$push(storageKey, value);
+            break;
+          case '$addToSet':
+            storageUpdate.$addToSet(storageKey, value);
+            break;
+          case '$pull':
+            storageUpdate.$pull(storageKey, value);
+            break;
+          case '$unique':
+            storageUpdate.$unique(storageKey);
+            break;
+          case '$extend':
+            storageUpdate.$extend(storageKey, value);
+            break;
+        }
+      };
 		return destiny;
 	}]);  
