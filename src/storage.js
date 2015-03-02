@@ -43,67 +43,68 @@ angular.module('storage.utils', [])
 		return destiny;
 	}]);
 
-angular.module('storage', ['storage.utils'])
+angular.module('storage.operate', ['storage.utils'])
+  .factory('storageOperate', ['$window', 'storageUtils', '$log', function($window, storageUtils, $log) {
+    var storage = $window.localStorage;
+    var destiny = {};
+    /**
+     * Get - let's you get the value of any pair you've stored
+     * @param key - the string that you set as accessor for the pair
+     * @returns {*} - Object,String,Float,Boolean depending on what you stored
+     */
+    destiny.get = function(key) {
+      return storageUtils.parseValue(storage.getItem(key));
+    };
+
+    /**
+     * getByIndex - let's you get the value of any pair you've stored by index
+     * @param index - the index you expected for the pair
+     * @returns {*} - Object,String,Float,Boolean depending on what you stored
+     */
+    destiny.getByIndex = function(index) {
+      return storageUtils.parseValue(storage.getItem(storage.key(index)));
+    };
+
+    /**
+     * Set - let's you set a new localStorage key pair set
+     * @param key - a string that will be used as the accessor for the pair
+     * @param value - the value of the localStorage item
+     * @exception - the localstorage has size limit
+     */
+    destiny.set = function(key, value) {
+      if(storage.getItem(key)) storage.removeItem(key);
+      storage.setItem(key, storageUtils.resolveValue(value));
+    };
+
+    /**
+     * Remove - let's you nuke a value from localStorage
+     * @param key - the accessor value
+     */
+    destiny.remove = function(key) {
+      storage.removeItem(key);
+    };
+
+    /**
+     * Clear All - let's you clear out ALL localStorage variables, use this carefully!
+     */
+    destiny.clear = function() {
+      storage.clear();
+    };
+
+    /**
+     * getSize - let's you get localStorage variables length
+     */
+    destiny.getSize = function() {
+      return storage.length;
+    };
+
+    return destiny;
+  }]);
+
+angular.module('storage', ['storage.utils', 'storage.operate'])
   .factory('storage', ['$parse','$window', '$log', 'storageUtils',
-		function ($parse, $window, $log, storageUtils) {
-		  var storage = $window.localStorage;
-			var destiny = {};
-			/**
-			 * Get - let's you get the value of any pair you've stored
-			 * @param key - the string that you set as accessor for the pair
-			 * @returns {*} - Object,String,Float,Boolean depending on what you stored
-			 */
-			destiny.get = function(key) {
-				return storageUtils.parseValue(storage.getItem(key));
-			};
-
-			/**
-			 * getByIndex - let's you get the value of any pair you've stored by index
-			 * @param index - the index you expected for the pair
-			 * @returns {*} - Object,String,Float,Boolean depending on what you stored
-			 */
-			destiny.getByIndex = function(index) {
-				return storageUtils.parseValue(storage.getItem(storage.key(index)));
-			};
-
-			/**
-			 * Set - let's you set a new localStorage key pair set
-			 * @param key - a string that will be used as the accessor for the pair
-			 * @param value - the value of the localStorage item
-			 * @exception - the localstorage has size limit
-			 */
-		  destiny.set = function(key, value) {
-				if(storage.getItem(key)) storage.removeItem(key);
-				storage.setItem(key, storageUtils.resolveValue(value));
-			};
-
-			/**
-			 * Remove - let's you nuke a value from localStorage
-			 * @param key - the accessor value
-			 */
-			destiny.remove = function(key) {
-				storage.removeItem(key);
-			};
-
-			/**
-			 * Clear All - let's you clear out ALL localStorage variables, use this carefully!
-			 */
-			destiny.clear = function() {
-				storage.clear();
-			};
-
-			/**
-			 * getSize - let's you get localStorage variables length
-			 */
-			destiny.getSize = function() {
-				return storage.length;
-			};
-
-
+		function ($parse, $log) {
   		var publicMethods = {
-
-
-
 			/** Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
              * @param modify - shorthand method
 			 * @param storageKey - a string that will be used as the accessor for the pair
@@ -134,90 +135,7 @@ angular.module('storage', ['storage.utils'])
 					    break;
 				}
 
-				function inc(storageKey, value){
-					var storageValue = publicMethods.get(storageKey);
-					if (angular.isNumber(storageValue) && angular.isNumber(value)){
-				        storageValue +=value;
-                        publicMethods.set(storageKey, storageValue);
-                        return true;
-					} else {
-						return false;
-					}
-				}
 
-                function verse(storageKey) {
-                    var storageValue = publicMethods.get(storageKey);
-                    if (angular.equals(storageValue, true)) {
-                        storageValue = false;
-                        publicMethods.set(storageKey, storageValue);
-                        return true;
-                    } else if (angular.equals(storageValue, false)) {
-                        storageValue = true;
-                        publicMethods.set(storageKey, storageValue);
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-
-				function push(storageKey, value){
-					var storageValue = publicMethods.get(storageKey);
-					if(angular.isArray(storageValue)){
-					    storageValue = storageValue.concat(value);
-                        publicMethods.set(storageKey, storageValue);
-                        return true;
-					}else{
-						return false;
-					}
-				}
-
-				function addToSet(storageKey, value){
-                    var storageValue = publicMethods.get(storageKey);
-                    if (angular.isArray(storageValue) && !angular.isArray(value)){
-		                if (!privateMethods.inArray(value, storageValue)) {
-		                    storageValue.push(value);
-		                }
-                        publicMethods.set(storageKey, storageValue);
-                        return true;
-                    }else{
-	                    return false;
-	                }     
-				}
-
-                function pull(storageKey, value) {
-                    var storageValue = publicMethods.get(storageKey);
-                    if(angular.isArray(storageValue)){
-                        while (storageValue.indexOf(value) !== -1) {
-                            var index = storageValue.indexOf(value);
-                            storageValue.splice(index, 1);
-                        }
-                        publicMethods.set(storageKey, storageValue);
-                        return true;
-                    }else{
-                        return false;
-                    }
-                }
-
-				function unique(storageKey){
-					var storageValue = publicMethods.get(storageKey);
-					if(angular.isArray(storageValue)){
-                        publicMethods.set(storageKey,privateMethods.unique(storageValue));
-                        return true;
-					}else{
-						return false;
-					}
-				}
-
-				function extend(storageKey,value){
-					var storageValue = publicMethods.get(storageKey);
-					if(angular.isObject(storageValue) && angular.isObject(value)){
-						angular.extend(storageValue, value);
-						publicMethods.set(storageKey,storageValue);
-                        return true;
-					} else {
-                        return false;
-                    }
-				}
 			},
 		
 			 /*
