@@ -8,11 +8,11 @@
   "repository": "https://github.com/bornkiller/angularLocalStorage.git",
   "dependencies": {},
   "devDependencies": {
-    "grunt-karma": "^0.10.1",
     "jasmine-core": "^2.2.0",
     "jshint-stylish": "^1.0.1",
     "karma": "^0.12.31",
     "karma-chrome-launcher": "^0.1.7",
+    "karma-cli": "0.0.4",
     "karma-coverage": "~0.2.7",
     "karma-firefox-launcher": "^0.1.4",
     "karma-ie-launcher": "^0.1.5",
@@ -20,9 +20,9 @@
     "karma-phantomjs-launcher": "^0.1.4"
   },
   "scripts": {
-    "test": "./node_modules/.bin/grunt karma",
-    "prepare-test": "npm install bower grunt grunt-cli",
-    "prepare-dependency": "./node_modules/.bin/bower -F install"
+    "test": "./node_modules/.bin/karma start karma.conf.js",
+    "test-travis": "./node_modules/.bin/karma start CI.conf.js",
+    "prepare-test": "npm install bower && ./node_modules/.bin/bower -F install"
   },
   "author": "bornkiller",
   "license": "MIT"

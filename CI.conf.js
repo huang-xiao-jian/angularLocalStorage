@@ -1,7 +1,5 @@
 module.exports = function(config) {
   config.set({
-
-
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
@@ -20,10 +18,28 @@ module.exports = function(config) {
       'test/*.spec.js'
     ],
 
+    preprocessors: {
+      // source files, that you wanna generate coverage for
+      // do not include tests or libraries
+      // (these files will be instrumented by Istanbul)
+      'src/storage.js': ['coverage']
+    },
+
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
-    reporters: ['progress'],
+    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+    // plugin support: junit, should config junitReporter in use
+    // plugin support: coverage, should config coverageReporter and preprocessors in use
+    reporters: ['coverage'],
+
+    
+    // optionally, configure the reporter
+    coverageReporter: {
+      type : 'lcov',
+      dir : 'coverage/',
+      subdir: './'
+    },
 
 
     // web server port
@@ -46,11 +62,11 @@ module.exports = function(config) {
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     // available options 'Chrome', 'IE', 'Firefox', 'PhantomJS' while 'IE8','IE9' approaching
-    browsers: ['Chrome', 'IE', 'Firefox'],
+    browsers: ['Firefox'],
 
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: true
   });
 };
