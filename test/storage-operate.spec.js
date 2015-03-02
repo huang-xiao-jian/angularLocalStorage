@@ -38,10 +38,8 @@ describe('storage.operate module', function() {
   });
 
   it('Storage getByIndex method should work right', function () {
-    storageOperate.set('story', 'love is color blind');
     storageOperate.set('content', 'forever girl');
     expect(storageOperate.getByIndex(0)).toEqual('forever girl');
-    expect(storageOperate.getByIndex(1)).toEqual('love is color blind');
     storageOperate.clear();
   });
 });
