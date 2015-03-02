@@ -17,121 +17,91 @@ bower install angular-localstorage-modern --save
 <script src="bower_components/dist/storage.js></script>
 ```
 
+## Warning
+Break change after v0.8.0,  original `storage` service split into `storageUtils`, `storageOperate`,  `storageUpdate` service, and use directive `storage-bind` to achieve data-binding.
+ 
 ## Attention 
 
-* You can directly store Objects, Arrays, Floats, Booleans, and Strings. No need to convert your javascript values from strings. Till now, I add RegExps, Dates support.
+* You can directly store Objects, Arrays, Floats, Booleans, and Strings. No need to convert your javascript values from strings. Till now, I add RegExps, Datessupport.
 * No Fallback to Angular ``$cookies`` if localStorage is not supported
-* I follow the TDD rule to code this module , basic function works right, except the data binding, since I think it meaningless.
+* TDD rule to code this module.
 * You can also see <https://github.com/agrublev/angularLocalStorage>
-
 
 ## How to use
 
 1. Just add this module to your app as a dependency
-``var yourApp = angular.module('yourApp', [..., 'storage']``
+   ```javascript
+   var app = angular.module('app', ['storage']
+   ```
+
 2. Now inside your controllers simply pass the storage factory like this
-``yourApp.controller('yourController', function( $scope, storage){``
-3. Using the ``storage`` factory
-  ```JAVASCRIPT
-
-  // just storing something in localStorage
-  storage.set('key','value');
-  
-  // getting that value
-  storage.get('key');
-
-  // remove that key
-  storage.remove('key');
-
-  // clear all localStorage values
-  storage.clear();
-  
-  // just update stored things in localStorage
-  storage.update('modifier', 'storageKey', 'value');
-
-  //make a data-binding from model to localstorage or reverse or both 
-  storage.bind($scope,'modelKey','storageKey','dirction');
-  
-   //cancel  data-binding from model to localstorage or reverse or both 
-  storage.unbind($scope,'modelKey','storageKey','dirction');
-  ```
-4. About  update method
-   ``update(modifier, storageKey, value)``
-
-  | modifier             | feature        |
-  | :------------------: | :------------- |
-  | ``$inc``             | to plus a number for the stored value(negative acceptable) |
-  | ``$verse``           | to verse Booleans value |
-  | ``$push``            | to push new value into the stored array(array and other   variable type acceptalbe) |
-  | ``$addToset``        | to push a new value(not array) that doesn't exist in the stored array |
-  | ``$pull``            | to remove specific item in an array |
-  | ``$unique``          | unique the stored array,the third argument not in need |
-  | ``$extend``          | to update extend stored object by the passing-in value,passing-in value higher priority |
-
-  For example 
-  ```javascript
-      storage.set('love',1);
-      storage.update('$inc','love',5);
-      storage.get('love') == 6;
-  ```
-  ```javascript
-      storage.set('love',['first','second']);
-      storage.update('$push','love','third');
-      storage.get('love') == ['first','second','third']
-  ```
-
-  ```javascript
-      storage.set('love',['first','first','first']);
-      storage.update('$unique','love');
-      storage.get('love') == ['first']
-  ```
-  ```javascript
-      storage.set('love',{"title":"I love you","content":"I wish you were here"});
-      storage.update('$extend','love',{"content":"Rock N roll","label":"dark"});
-      storage.get('love') == {
-             "title":"I love you",
-             "content":"Rock N roll",
-             "label":"dark" 
-     }
-  ```
-
-5. About data-binding 
-  ``storage.bind($scope,'modelKey','storageKey','dirction');``
-  ``storage.unbind($scope,'modelKey','storageKey','dirction');``
-
-  | direction            | instruction                    |
-  | :------------------: | :-------------                 |
-  | forward              | sync from model to localstorage|
-  | reverse              | sync from localstorage to model|
-  | normal               | sync both way                  |
-  | default              | sync forward way               |
-
-  Compare with agrublev , I had modified all the code about data-binding for more simple use. 
-  Below is example snippt for data-binding if you don't use bind method:
-  ```JAVASCRIPT
-      $scope.storageListener = function(){
-          return storage.get('zero');
+   ```javascript
+    app.controller('Controller', ['$scope','storageOperate', 'storageUpdate',
+      function($scope, storageOperate,storageUpdate){
+        $scope.title = 'angularLocalStorage';    
       }
-      var tmp=$scope.$watch($scope.storageListener,function(newVal,oldVal){
-      	  $scope.zero = newVal;
-      },true) 
-  ```
-  The snippt purpose is to modify $scope.zero when localstorage.zero has changed, direction is from localstorage to
-  model
+    ])
+    ```
 
-  ```JAVASCRIPT
-      $scope.zero = 'I Love You!';
-      var tmp=$scope.$watch('zero',function(newVal,oldVal){
-      	storage.set('zero',$scope.zero);
-      },true) 
-  ```
-  The snippt purpose is to modify  localstorage.zero when $scope.zero has changed,direction is from model to   localstorage
+3. Using the ``storageOperate`` service.
+  ```javascript
+    // just storing something in localStorage
+    storageOperate.set('key','value');
+  
+    // getting that value
+    storageOperate.get('key');
 
-  Now you can just use the provided way to bind date
-  ```JAVASCRIPT
-	storage.bind($scope,'zero','zero','forward');
-	storage.unbind($scope,'zero','zero','forward');
+    // getting that value through index
+    storageOperate.getByIndex(1);
+
+    // remove that key
+    storageOperate.remove('key');
+
+    // clear all localStorage values
+    storageOperate.clear();
+
+    // get localStorage length
+    storageOperate.getSize();
   ```
+
+4. Using the `storageUpdate` service.
+
+    | method             | feature        |
+    | :------------------: | :-------------   |
+    | $inc             | plus a number for the stored value(negative acceptable) |
+    | $verse        | verse Booleans value |
+    | $push          | push new value into the stored array |
+    | $addToset | push new value into the stored array, and ensure it's unique |
+    | $pull            | remove specific item in an array |
+    | $unique      | unique the stored array |
+    | $extend       | extend stored object with pass-in object |
+
+  For example: 
+
+  ```javascript
+  storageOperate.set('love', 1);
+  storageUpdate.$inc('love', 5);
+  storageOperate.get('love') == 6;
+  ```
+  ```javascript
+  storageOperate.set('love', ['first', 'second']);
+  storageUpdate.$push('love', 'third');
+  storageOperate.get('love') == ['first', 'second', 'third']
+  ```
+
+5. About data-binding.
+ ```html
+  <input type="text" ng-model="sky" storage-bind="sky" storage-bind-direction="reverse" >
+  ```
+Directive `storage-bind`, use `storage-bind-direction` config the direction, require `ng-model` directive. 
+
+    | direction           | instruction |
+    | :------------------: | :-------------|
+    | forward            | sync through model -->  localstorage --> view |
+    | reverse            | sync through view --> localstorage --> model |
+    | normal             | sync both way                  |
+
+Compare with agrublev , I had modified all the code about data-binding for more simple use.  And remember that, when localstorage value changes, it doesn't change the model or view value since v0.8.0, because I think this meaningless.
 
 ## Feature coming soon
  New update modify comes later,forget the get -> operate -> set order.
@@ -142,4 +112,3 @@ bower install angular-localstorage-modern --save
 ---
 
 (c) 2013 MIT License
-
