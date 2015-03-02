@@ -40,6 +40,12 @@ angular.module('storage.utils', [])
 			});
 		};
 
+    destiny.pull = function(array, target) {
+      return array.filter(function(item) {
+        return !angular.equals(item, target);
+      })
+    };
+
 		return destiny;
 	}]);
 
@@ -101,9 +107,66 @@ angular.module('storage.operate', ['storage.utils'])
     return destiny;
   }]);
 
-angular.module('storage', ['storage.utils', 'storage.operate'])
-  .factory('storage', ['$parse','$window', '$log', 'storageUtils',
-		function ($parse, $log) {
+angular.module('storage.update', ['storage.operate', 'storage.utils'])
+  .factory('storageUpdate', ['storageOperate', 'storageUtils', '$log', function(storageOperate, storageUtils, $log) {
+    var destiny = {};
+    destiny.$inc = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isNumber(storageValue) && angular.isNumber(value)){
+        storageValue +=value;
+        storageOperate.set(key, storageValue);
+      }
+    };
+
+    destiny.$verse = function(key) {
+      var storageValue = storageOperate.get(key);
+      if (storageValue === true || storageValue === false || toString.call(storageValue) === '[object Boolean]') {
+        storageOperate.set(key, !storageValue);
+      }
+    };
+
+    destiny.$push = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isArray(storageValue)) {
+        storageOperate.set(key, storageValue.concat(value));
+      }
+    };
+
+    destiny.$addToSet = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isArray(storageValue)) {
+        storageValue = storageValue.concat(value);
+        storageOperate.set(key, storageUtils.uniqueArray(storageValue));
+      }
+    };
+
+    destiny.$unique = function(key) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isArray(storageValue)) {
+        storageOperate.set(key, storageUtils.uniqueArray(storageValue));
+      }
+    };
+
+    destiny.$extend = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isObject(storageValue) && angular.isObject(value)) {
+        storageOperate.set(key, angular.extend(storageValue, value));
+      }
+    };
+
+    destiny.$pull = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isArray(storageValue)) {
+        storageOperate.set(key, storageUtils.pull(storageValue, value));
+      }
+    };
+
+    return destiny;
+  }]);
+
+angular.module('storage', ['storage.operate', 'storage.update'])
+  .factory('storage', ['$parse', 'storageOperate', 'storageUpdate', '$log',
+    function ($parse, storageOperate, storageUpdate, $log) {
   		var publicMethods = {
 			/** Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
              * @param modify - shorthand method

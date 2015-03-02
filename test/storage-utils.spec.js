@@ -1,4 +1,4 @@
-xdescribe("just check storage.utils module normal function", function() {
+describe('storage.utils module', function() {
   var utils;
 
   beforeEach(function(){
@@ -33,9 +33,9 @@ xdescribe("just check storage.utils module normal function", function() {
   });
 
   it('just check object support', function () {
-    var result = utils.parseValue(utils.resolveValue({"title":"love is colorful"}));
+    var result = utils.parseValue(utils.resolveValue({'title':'love is colorful'}));
     expect(result).toEqual(jasmine.any(Object));
-    expect(result.title).toEqual("love is colorful");
+    expect(result.title).toEqual('love is colorful');
   });
 
   it('just check array support', function () {
@@ -60,13 +60,18 @@ xdescribe("just check storage.utils module normal function", function() {
   });
 
   it('just check inArray function', function () {
-    var source = ["one", "two", "three"];
-    expect(utils.inArray(source, "one")).toBeTruthy();
-    expect(utils.inArray(source, "fifth")).toBeFalsy();
+    var source = ['one', 'two', 'three'];
+    expect(utils.inArray(source, 'one')).toBeTruthy();
+    expect(utils.inArray(source, 'fifth')).toBeFalsy();
   });
 
   it('just check uniqueArray function', function () {
-    var source = ["one", "two", "one", "three", "two"];
-    expect(utils.uniqueArray(source)).toEqual(["one", "two", "three"]);
+    var source = ['one', 'two', 'one', 'three', 'two'];
+    expect(utils.uniqueArray(source)).toEqual(['one', 'two', 'three']);
+  });
+
+  it('just check pull function', function () {
+    var source = ['one', 'two', 'three'];
+    expect(utils.pull(source, 'one')).toEqual(['two', 'three']);
   });
 });

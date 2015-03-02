@@ -1,4 +1,4 @@
-xdescribe('just check storage service basic API', function() {
+describe('storage.operate module', function() {
   var storageOperate;
 
   beforeEach(function () {
