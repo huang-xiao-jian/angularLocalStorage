@@ -1,4 +1,4 @@
-describe('just check storage service basic API', function() {
+xdescribe('just check storage service basic API', function() {
   var storage;
 
   beforeEach(function () {
@@ -7,7 +7,7 @@ describe('just check storage service basic API', function() {
 
   beforeEach(function () {
     inject(function (_storage_) {
-        storage = _storage_;
+      storage = _storage_;
     });
   });
 

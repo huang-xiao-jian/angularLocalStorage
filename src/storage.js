@@ -21,7 +21,6 @@ angular.module('storage.utils', [])
 				var flag = splitArray.pop();
 				return new RegExp(splitArray.join('/'), flag);
 			}
-			if (angular.isString(value)) return value;
 			return JSON.parse(value);
 		};
 
@@ -75,7 +74,7 @@ angular.module('storage', ['storage.utils'])
 			 */
 		  destiny.set = function(key, value) {
 				if(storage.getItem(key)) storage.removeItem(key);
-				storage.setItem(key, value);
+				storage.setItem(key, storageUtils.resolveValue(value));
 			};
 
 			/**
