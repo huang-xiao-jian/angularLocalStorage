@@ -1,9 +1,18 @@
 'use strict';
 
+/**
+ * @module storage.utils
+ * @description - exposed storageUtils service, which contain several useful method
+ */
 angular.module('storage.utils', [])
 	.factory('storageUtils', ['$log', function($log) {
 		var destiny = {};
 
+    /**
+     * @description - pretreatment the value which would put into localStorage
+     * @param {*} value
+     * @returns {string} - string resolved through JSON.stringify()
+     */
 		destiny.resolveValue = function(value) {
 			if (angular.isUndefined(value)) return null;
 			if (angular.isDate(value)) return JSON.stringify('RESERVED-DATE' + value.toJSON());
@@ -11,7 +20,13 @@ angular.module('storage.utils', [])
 			return JSON.stringify(value);
 		};
 
-		destiny.parseValue = function(value) {
+    /**
+     * @description - parse the value from localStorage into origin variable
+     * @param {string} value
+     * @returns {*} - variable parsed through JSON.parse()
+     */
+
+    destiny.parseValue = function(value) {
 			if (value === null) return null;
 			if (value.indexOf('RESERVED-DATE') !== -1)  {
 				return new Date(JSON.parse(value).replace('RESERVED-DATE', ''));
@@ -24,10 +39,22 @@ angular.module('storage.utils', [])
 			return JSON.parse(value);
 		};
 
-		destiny.inArray = function(array, target) {
+    /**
+     * @description - check if array have target
+     * @param {Array} array - source array to check
+     * @param {*} target - item variable to match
+     * @returns {Boolean} - true for exists, false for the opposite
+     */
+
+    destiny.inArray = function(array, target) {
 			return array.indexOf(target) !== -1;
 		};
 
+    /**
+     * @description - unique the specific array
+     * @param {Array} array - source array to unique
+     * @returns {Array} - unique array without repeated value
+     */
 		destiny.uniqueArray = function(array) {
 			var container = [];
 			return array.filter(function(item) {
@@ -49,13 +76,18 @@ angular.module('storage.utils', [])
 		return destiny;
 	}]);
 
+/**
+ * @module storage.operate
+ * @description - exposed storageOperate service, which contain several localStorage operate method
+ */
 angular.module('storage.operate', ['storage.utils'])
   .factory('storageOperate', ['$window', 'storageUtils', '$log', function($window, storageUtils, $log) {
     var storage = $window.localStorage;
+
     var destiny = {};
     /**
-     * Get - let's you get the value of any pair you've stored
-     * @param key - the string that you set as accessor for the pair
+     * Get - get the value stored in localStorage
+     * @param key - the key string as accessor
      * @returns {*} - Object,String,Float,Boolean depending on what you stored
      */
     destiny.get = function(key) {
@@ -63,8 +95,9 @@ angular.module('storage.operate', ['storage.utils'])
     };
 
     /**
-     * getByIndex - let's you get the value of any pair you've stored by index
+     * getByIndex - get the value stored in localStorage
      * @param index - the index you expected for the pair
+     * @exception - different browser may use different sort method, and the index maybe not what you really want
      * @returns {*} - Object,String,Float,Boolean depending on what you stored
      */
     destiny.getByIndex = function(index) {
@@ -72,8 +105,8 @@ angular.module('storage.operate', ['storage.utils'])
     };
 
     /**
-     * Set - let's you set a new localStorage key pair set
-     * @param key - a string that will be used as the accessor for the pair
+     * Set - set new localStorage key pair set
+     * @param key - the key string as accessor
      * @param value - the value of the localStorage item
      * @exception - the localstorage has size limit
      */
@@ -83,7 +116,7 @@ angular.module('storage.operate', ['storage.utils'])
     };
 
     /**
-     * Remove - let's you nuke a value from localStorage
+     * Remove - remove value from localStorage
      * @param key - the accessor value
      */
     destiny.remove = function(key) {
@@ -91,14 +124,14 @@ angular.module('storage.operate', ['storage.utils'])
     };
 
     /**
-     * Clear All - let's you clear out ALL localStorage variables, use this carefully!
+     * Clear All - clear out ALL localStorage variables, use this carefully!
      */
     destiny.clear = function() {
       storage.clear();
     };
 
     /**
-     * getSize - let's you get localStorage variables length
+     * getSize - get localStorage variables length
      */
     destiny.getSize = function() {
       return storage.length;
@@ -107,9 +140,19 @@ angular.module('storage.operate', ['storage.utils'])
     return destiny;
   }]);
 
+/**
+ * @module storage.update
+ * @description - exposed storageUpdate service, which contain several update method
+ */
 angular.module('storage.update', ['storage.operate', 'storage.utils'])
   .factory('storageUpdate', ['storageOperate', 'storageUtils', '$log', function(storageOperate, storageUtils, $log) {
     var destiny = {};
+
+    /**
+     * $inc - increase localStorage number value with specific key
+     * @param {string} key - the key string as accessor
+     * @param {number} value - the value to increase, negative accepted
+     */
     destiny.$inc = function(key, value) {
       var storageValue = storageOperate.get(key);
       if (angular.isNumber(storageValue) && angular.isNumber(value)){
@@ -118,6 +161,10 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
       }
     };
 
+    /**
+     * $inc - verse localStorage boolean value with specific key
+     * @param {string} key - the key string as accessor
+     */
     destiny.$verse = function(key) {
       var storageValue = storageOperate.get(key);
       if (storageValue === true || storageValue === false || toString.call(storageValue) === '[object Boolean]') {
@@ -125,6 +172,11 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
       }
     };
 
+    /**
+     * $push - push item into localStorage array value with specific key
+     * @param {string} key - the key string as accessor
+     * @param {*} value - the value to push into the specific array
+     */
     destiny.$push = function(key, value) {
       var storageValue = storageOperate.get(key);
       if (angular.isArray(storageValue)) {
@@ -132,6 +184,11 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
       }
     };
 
+    /**
+     * $addToSet - push item into localStorage array value with specific key, and ensure unique
+     * @param {string} key - the key string as accessor
+     * @param {*} value - the value to push into the specific array
+     */
     destiny.$addToSet = function(key, value) {
       var storageValue = storageOperate.get(key);
       if (angular.isArray(storageValue)) {
@@ -140,6 +197,10 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
       }
     };
 
+    /**
+     * $unique - unique localStorage array value with specific key, without repeated value
+     * @param {string} key - the key string as accessor
+     */
     destiny.$unique = function(key) {
       var storageValue = storageOperate.get(key);
       if (angular.isArray(storageValue)) {
@@ -147,6 +208,11 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
       }
     };
 
+    /**
+     * $extend - extend localStorage object value with specific key
+     * @param {string} key - the key string as accessor
+     * @param {object} value - the value to override the source
+     */
     destiny.$extend = function(key, value) {
       var storageValue = storageOperate.get(key);
       if (angular.isObject(storageValue) && angular.isObject(value)) {
@@ -154,6 +220,11 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
       }
     };
 
+    /**
+     * $pull - pull item out from localStorage array value with specific key
+     * @param {string} key - the key string as accessor
+     * @param {*} value - the value to pull out the specific array
+     */
     destiny.$pull = function(key, value) {
       var storageValue = storageOperate.get(key);
       if (angular.isArray(storageValue)) {
@@ -164,6 +235,10 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
     return destiny;
   }]);
 
+/**
+ * @module storage.through
+ * @description - exposed storage-bind directive, which execute data bind
+ */
 angular.module('storage.through', ['storage.operate', 'storage.utils'])
   .directive('storageBind', ['storageOperate', 'storageUtils', '$log', function(storageOperate, storageUtils, $log) {
     return {
@@ -203,41 +278,8 @@ angular.module('storage.through', ['storage.operate', 'storage.utils'])
     }
   }]);
 
+/**
+* @module storage
+* @description - integration which contain service and directive above
+*/
 angular.module('storage', ['storage.operate', 'storage.update', 'storage.through']);
-  //.factory('storage', ['$parse', 'storageOperate', 'storageUpdate', '$log',
-   // function ($parse, storageOperate, storageUpdate, $log) {
-   //   var destiny = angular.copy(storageOperate);
-  //
-   //   /**
-   //    * Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
-   //    * @param modify - shorthand method
-   //    * @param storageKey - a string that will be used as the accessor for the pair
-   //    * @param value - the value of the localStorage item
-   //    */
-   //   destiny.update = function(modify, storageKey, value) {
-   //     switch(modify){
-   //       case '$inc':
-   //         storageUpdate.$inc(storageKey, value);
-   //         break;
-   //       case '$verse':
-   //         storageUpdate.$verse(storageKey, value);
-   //         break;
-   //       case '$push':
-   //         storageUpdate.$push(storageKey, value);
-   //         break;
-   //       case '$addToSet':
-   //         storageUpdate.$addToSet(storageKey, value);
-   //         break;
-   //       case '$pull':
-   //         storageUpdate.$pull(storageKey, value);
-   //         break;
-   //       case '$unique':
-   //         storageUpdate.$unique(storageKey);
-   //         break;
-   //       case '$extend':
-   //         storageUpdate.$extend(storageKey, value);
-   //         break;
-   //     }
-   //   };
-	//	return destiny;
-	//}]);
