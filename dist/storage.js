@@ -1,318 +1,285 @@
-angular.module('storage', [])
-  .factory('storage', ['$parse','$window', '$log',
-      function ($parse, $window, $log) {
-      	'use strict';
-		/**
-		 * Global Vars
-		 */
-		var storage = (typeof $window.localStorage === 'undefined') ? undefined : $window.localStorage;
-		var privateMethods = {
-            resolveValue: function(key, value) {
-                if (angular.isDate(value)) {
-                    value = angular.toJson("love-date-json" + value.toJSON());
-                } else if (Object.prototype.toString.call(value) === '[object RegExp]'){
-                    value = angular.toJson("love-regexp-string" + value.toString());
-                } else {
-                    value = angular.toJson(value);
-                }
-                storage.setItem(key, value);
-            },
-			/**
-			 * Pass any type of a string from the localStorage to be parsed
-			 * @param res - a string that will be parsed for type
-			 * @returns {*} - whatever the real value of stored value was
-			 */
-			parseValue: function (res) {
-				var val;
-				try {
-					val = angular.fromJson(res);
-					if (typeof val === 'undefined') {
-						val = 'undefined';
-					}
-					if (val === 'true') {
-						val = true;
-					}
-					if (val === 'false') {
-						val = false;
-					}
-                    if (val.indexOf('love-date-json') !== -1) {
-                        val = val.replace('love-date-json', '');
-                        val = new Date(val);
-                    }
-                    if (val.indexOf('love-regexp-string') !== -1) {
-                        val = val.split('/');
-                        val = new RegExp(val[1], val[2]);
-                    }
-				} catch (e) {
-					$log.info(e.message);
-				}
-				return val;
-			},
+'use strict';
 
-			inArray : function(needle,array){  
-               if(angular.isArray(array)){
-               	  var flag = false;
-          	      angular.forEach(array, function(value){
-          	      	 if(angular.equals(needle,value)){
-          	      	 	flag = true;
-          	      	 }
-          	      });
-          	      return flag;
-               }
-			},
+/**
+ * @module storage.utils
+ * @description - exposed storageUtils service, which contain several useful method
+ */
+angular.module('storage.utils', [])
+	.factory('storageUtils', ['$log', function($log) {
+		var destiny = {};
 
-			unique : function(array){
-               if(angular.isArray(array)){
-				   var tmp = {}, destiny = [];
-				   angular.forEach(array, function(value){
-				      if(!tmp.hasOwnProperty(value)) {
-				         destiny.push(value);
-				         tmp[value] = 1;	
-				      }			   	
-				   });
-				   return destiny;               	
-               }
-			}  
+    /**
+     * @description - pretreatment the value which would put into localStorage
+     * @param {*} value
+     * @returns {string} - string resolved through JSON.stringify()
+     */
+		destiny.resolveValue = function(value) {
+			if (angular.isUndefined(value)) return null;
+			if (angular.isDate(value)) return JSON.stringify('RESERVED-DATE' + value.toJSON());
+			if (Object.prototype.toString.call(value) === '[object RegExp]') return JSON.stringify('RESERVED-REGEXP' + value.toString());
+			return JSON.stringify(value);
 		};
 
-		var publicMethods = {
-			/**
-			 * Set - let's you set a new localStorage key pair set
-			 * @param key - a string that will be used as the accessor for the pair
-			 * @param value - the value of the localStorage item
-			 * @exception - the localstorage has size limit  
-			 */
-			set: function (key, value) {
-			   if(storage.getItem(key)){
-				   storage.removeItem(key);	
-			   }
+    /**
+     * @description - parse the value from localStorage into origin variable
+     * @param {string} value
+     * @returns {*} - variable parsed through JSON.parse()
+     */
 
-			   try {
-                   privateMethods.resolveValue(key, value);
-			   } catch(e) {
-                   $log.info(e.message);
-			   }
-			   
-			},
-
-			/**
-			 * Get - let's you get the value of any pair you've stored
-			 * @param key - the string that you set as accessor for the pair
-			 * @returns {*} - Object,String,Float,Boolean depending on what you stored
-			 */
-			get: function (key) {
-				return privateMethods.parseValue(storage.getItem(key));
-			},
-
-			/**
-			 * Remove - let's you nuke a value from localStorage
-			 * @param key - the accessor value
-			 */
-			remove: function (key) {
-				storage.removeItem(key);
-			},
-
-			/**
-			 * Clear All - let's you clear out ALL localStorage variables, use this carefully!
-			 */
- 			clear: function() {
-				storage.clear();
-			},
-
-			/** Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
-             * @param modify - shorthand method
-			 * @param storageKey - a string that will be used as the accessor for the pair
-			 * @param value - the value of the localStorage item
-			 */
-			update:function(modify, storageKey, value){
-				switch(modify){
-					case '$inc':
-					    inc(storageKey, value);
-					    break;
-                    case '$verse':
-                        verse(storageKey, value);
-                        break;
-					case '$push':
-					    push(storageKey, value);
-					    break;
-                    case '$addToSet':
-                        addToSet(storageKey, value);
-                        break;
-                    case '$pull':
-                        pull(storageKey, value);
-                        break;
-					case '$unique':
-					    unique(storageKey);
-					    break;
-					case '$extend':
-					    extend(storageKey, value);
-					    break;
-				}
-
-				function inc(storageKey, value){
-					var storageValue = publicMethods.get(storageKey);
-					if (angular.isNumber(storageValue)){
-				      storageValue +=value;
-                      publicMethods.set(storageKey, storageValue);
-					} else {
-						return false;
-					}
-				}
-
-                function verse(storageKey) {
-                    var storageValue = publicMethods.get(storageKey);
-                    if (angular.equals(storageValue, true)) {
-                        storageValue = false;
-                        publicMethods.set(storageKey, storageValue);
-                    } else if (angular.equals(storageValue, false)) {
-                        storageValue = true;
-                        publicMethods.set(storageKey, storageValue);
-                    } else {
-                        return false;
-                    }
-                }
-
-				function push(storageKey, value){
-					var storageValue = publicMethods.get(storageKey);
-					if(angular.isArray(storageValue)){
-					    storageValue = storageValue.concat(value);
-                        publicMethods.set(storageKey, storageValue);
-					}else{
-						return false;
-					}
-				}
-
-				function addToSet(storageKey, value){
-                    var storageValue = publicMethods.get(storageKey);
-                    if (angular.isArray(storageValue) && !angular.isArray(value)){
-		                if (!privateMethods.inArray(value, storageValue)) {
-		                    storageValue.push(value);
-		                }
-                        publicMethods.set(storageKey, storageValue);
-                    }else{
-	                    return false;
-	                }     
-				}
-
-                function pull(storageKey, value) {
-                    var storageValue = publicMethods.get(storageKey);
-                    if(angular.isArray(storageValue)){
-                        while (storageValue.indexOf(value) !== -1) {
-                            var index = storageValue.indexOf(value);
-                            storageValue.splice(index, 1);
-                        }
-                        publicMethods.set(storageKey, storageValue);
-                    }else{
-                        return false;
-                    }
-                }
-
-				function unique(storageKey){
-					var storageValue = publicMethods.get(storageKey);
-					if(angular.isArray(storageValue)){
-                      publicMethods.set(storageKey,privateMethods.unique(storageValue));
-					}else{
-						return false;
-					}
-				}
-
-				function extend(storageKey,value){
-					var storageValue = publicMethods.get(storageKey);
-					if(angular.isObject(storageValue) && angular.isObject(value)){
-						angular.extend(storageValue, value);
-						publicMethods.set(storageKey,storageValue);
-					}
-				}
-			},
-		
-			 /*
-			    A object to store cancel functions that generate when apply $scope.$watch
-			    for unnecessary judge, store the functions seperate
-			 */
-            "bindObjectReverse" : {},
-
-            "bindObjectForward" : {},
-
-			/** Bind - Make a data-binding in single way or both way
-			 * @param $scope - this param is to inject $scope environment in my own opinion
-			 * @param modelKey - angular expression that will be used to get value from the $scope 
-			 * @param storageKey - the name of the localStorage item
-			 * @param direction - data-binding dirction , from model to localstorage or from localstorage to 
-			                      model or both way 
-
-			 */
-			bind: function($scope, modelKey, storageKey, direction){
-                switch (direction) {
-                   case 'forward' :
-                     forwardBind();
-                     break;
-                   case 'reverse' :
-                     reverseBind();
-                     break;
-                   default :
-                     forwardBind();
-                     break;                                
-                }
-
-				function reverseBind(){
-					var tmp = $scope.$watch(
-							function (){
-								return publicMethods.get(storageKey);
-							},
-		                    function(newVal){
-		                       $parse(modelKey).assign($scope, newVal);
-		                    },
-		                    true
-						);
-
-                    $parse(storageKey).assign(publicMethods.bindObjectReverse, tmp);	
-				}
-
-				function forwardBind(){
-					var tmp = $scope.$watch(
-							function(){
-								return $parse(modelKey)($scope);
-							},
-		                    function(newVal){
-		                    	publicMethods.set(storageKey, newVal);
-		                    },
-		                    true
-						);
-                    
-					$parse(modelKey).assign(publicMethods.bindObjectForward, tmp);
-				}				
-			},
-
-			/** unbind - cancel data-binding in single way or both way
-			 * @param $scope - this param is to inject $scope environment in my own opinion
-			 * @param modelKey - angular expression that will be used to get value from the $scope 
-			 * @param storageKey - the name of the localStorage item
-			 * @param direction - data-binding cancel direction , from model to local storage or from local storage to
-			                      model or both way 
-
-			 */
-			unbind : function($scope, modelKey, storageKey, direction){
-
-                switch (direction) {
-                   case 'forward' :
-                     forwardUnbind();
-                     break;
-                   case 'reverse' :
-                     reverseUnbind();
-                     break;                              
-                   default :
-                     forwardUnbind();
-                     break;                                
-                }
-
-               function reverseUnbind(){
-               	  $parse(storageKey)(publicMethods.bindObjectReverse).apply();
-               }
-
-               function forwardUnbind(){
-               	  $parse(modelKey)(publicMethods.bindObjectForward).apply();
-               }
+    destiny.parseValue = function(value) {
+			if (value === null) return null;
+			if (value.indexOf('RESERVED-DATE') !== -1)  {
+				return new Date(JSON.parse(value).replace('RESERVED-DATE', ''));
 			}
+			if (value.indexOf('RESERVED-REGEXP') !== -1) {
+				var splitArray = JSON.parse(value).replace('RESERVED-REGEXP').split('/').slice(1);
+				var flag = splitArray.pop();
+				return new RegExp(splitArray.join('/'), flag);
+			}
+			return JSON.parse(value);
 		};
-		return publicMethods;
-	}]);  
+
+    /**
+     * @description - check if array have target
+     * @param {Array} array - source array to check
+     * @param {*} target - item variable to match
+     * @returns {Boolean} - true for exists, false for the opposite
+     */
+
+    destiny.inArray = function(array, target) {
+			return array.indexOf(target) !== -1;
+		};
+
+    /**
+     * @description - unique the specific array
+     * @param {Array} array - source array to unique
+     * @returns {Array} - unique array without repeated value
+     */
+		destiny.uniqueArray = function(array) {
+			var container = [];
+			return array.filter(function(item) {
+				if (container.indexOf(item) === -1) {
+					container.push(item);
+					return true;
+				} else {
+					return false;
+				}
+			});
+		};
+
+    destiny.pull = function(array, target) {
+      return array.filter(function(item) {
+        return !angular.equals(item, target);
+      })
+    };
+
+		return destiny;
+	}]);
+
+/**
+ * @module storage.operate
+ * @description - exposed storageOperate service, which contain several localStorage operate method
+ */
+angular.module('storage.operate', ['storage.utils'])
+  .factory('storageOperate', ['$window', 'storageUtils', '$log', function($window, storageUtils, $log) {
+    var storage = $window.localStorage;
+
+    var destiny = {};
+    /**
+     * Get - get the value stored in localStorage
+     * @param key - the key string as accessor
+     * @returns {*} - Object,String,Float,Boolean depending on what you stored
+     */
+    destiny.get = function(key) {
+      return storageUtils.parseValue(storage.getItem(key));
+    };
+
+    /**
+     * getByIndex - get the value stored in localStorage
+     * @param index - the index you expected for the pair
+     * @exception - different browser may use different sort method, and the index maybe not what you really want
+     * @returns {*} - Object,String,Float,Boolean depending on what you stored
+     */
+    destiny.getByIndex = function(index) {
+      return storageUtils.parseValue(storage.getItem(storage.key(index)));
+    };
+
+    /**
+     * Set - set new localStorage key pair set
+     * @param key - the key string as accessor
+     * @param value - the value of the localStorage item
+     * @exception - the localstorage has size limit
+     */
+    destiny.set = function(key, value) {
+      if(storage.getItem(key)) storage.removeItem(key);
+      storage.setItem(key, storageUtils.resolveValue(value));
+    };
+
+    /**
+     * Remove - remove value from localStorage
+     * @param key - the accessor value
+     */
+    destiny.remove = function(key) {
+      storage.removeItem(key);
+    };
+
+    /**
+     * Clear All - clear out ALL localStorage variables, use this carefully!
+     */
+    destiny.clear = function() {
+      storage.clear();
+    };
+
+    /**
+     * getSize - get localStorage variables length
+     */
+    destiny.getSize = function() {
+      return storage.length;
+    };
+
+    return destiny;
+  }]);
+
+/**
+ * @module storage.update
+ * @description - exposed storageUpdate service, which contain several update method
+ */
+angular.module('storage.update', ['storage.operate', 'storage.utils'])
+  .factory('storageUpdate', ['storageOperate', 'storageUtils', '$log', function(storageOperate, storageUtils, $log) {
+    var destiny = {};
+
+    /**
+     * $inc - increase localStorage number value with specific key
+     * @param {string} key - the key string as accessor
+     * @param {number} value - the value to increase, negative accepted
+     */
+    destiny.$inc = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isNumber(storageValue) && angular.isNumber(value)){
+        storageValue +=value;
+        storageOperate.set(key, storageValue);
+      }
+    };
+
+    /**
+     * $inc - verse localStorage boolean value with specific key
+     * @param {string} key - the key string as accessor
+     */
+    destiny.$verse = function(key) {
+      var storageValue = storageOperate.get(key);
+      if (storageValue === true || storageValue === false || toString.call(storageValue) === '[object Boolean]') {
+        storageOperate.set(key, !storageValue);
+      }
+    };
+
+    /**
+     * $push - push item into localStorage array value with specific key
+     * @param {string} key - the key string as accessor
+     * @param {*} value - the value to push into the specific array
+     */
+    destiny.$push = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isArray(storageValue)) {
+        storageOperate.set(key, storageValue.concat(value));
+      }
+    };
+
+    /**
+     * $addToSet - push item into localStorage array value with specific key, and ensure unique
+     * @param {string} key - the key string as accessor
+     * @param {*} value - the value to push into the specific array
+     */
+    destiny.$addToSet = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isArray(storageValue)) {
+        storageValue = storageValue.concat(value);
+        storageOperate.set(key, storageUtils.uniqueArray(storageValue));
+      }
+    };
+
+    /**
+     * $unique - unique localStorage array value with specific key, without repeated value
+     * @param {string} key - the key string as accessor
+     */
+    destiny.$unique = function(key) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isArray(storageValue)) {
+        storageOperate.set(key, storageUtils.uniqueArray(storageValue));
+      }
+    };
+
+    /**
+     * $extend - extend localStorage object value with specific key
+     * @param {string} key - the key string as accessor
+     * @param {object} value - the value to override the source
+     */
+    destiny.$extend = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isObject(storageValue) && angular.isObject(value)) {
+        storageOperate.set(key, angular.extend(storageValue, value));
+      }
+    };
+
+    /**
+     * $pull - pull item out from localStorage array value with specific key
+     * @param {string} key - the key string as accessor
+     * @param {*} value - the value to pull out the specific array
+     */
+    destiny.$pull = function(key, value) {
+      var storageValue = storageOperate.get(key);
+      if (angular.isArray(storageValue)) {
+        storageOperate.set(key, storageUtils.pull(storageValue, value));
+      }
+    };
+
+    return destiny;
+  }]);
+
+/**
+ * @module storage.through
+ * @description - exposed storage-bind directive, which execute data bind
+ */
+angular.module('storage.through', ['storage.operate', 'storage.utils'])
+  .directive('storageBind', ['storageOperate', 'storageUtils', '$log', function(storageOperate, storageUtils, $log) {
+    return {
+      restrict: 'A',
+      require: 'ngModel',
+      scope: {
+        'storageBind': '@',
+        'storageBindDirection': '@'
+      },
+      link: function(scope, element, attr, ngModel) {
+        if (storageOperate.get(scope.storageBind)) ngModel.$setViewValue(storageOperate.get(scope.storageBind));
+        var forward = function() {
+          ngModel.$parsers.push(function(value) {
+            if (value) storageOperate.set(scope.storageBind, value);
+            return value;
+          });
+        };
+        var reverse = function() {
+          ngModel.$formatters.push(function(value) {
+            if (value) storageOperate.set(scope.storageBind, value);
+            return value;
+          });
+        };
+        switch (scope.storageBindDirection) {
+          case 'forward':
+            forward.apply();
+            break;
+          case 'reverse':
+            reverse.apply();
+            break;
+          case 'normal':
+            forward.apply();
+            reverse.apply();
+            break;
+        }
+      }
+    }
+  }]);
+
+/**
+* @module storage
+* @description - integration which contain service and directive above
+*/
+angular.module('storage', ['storage.operate', 'storage.update', 'storage.through']);
