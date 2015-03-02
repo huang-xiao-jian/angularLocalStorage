@@ -1,116 +1,75 @@
-describe("just check storage service date-bind API", function() {
-    var $rootScope;
-    var $scope;
-    var storage;
+describe("storage.through module", function() {
+  var $rootScope
+    , $scope
+    , $compile
+    , $sniffer
+    , storageOperate
+    , element;
 
-    beforeEach(function () {
-        module('storage');
-    });
+  beforeEach(function () {
+    module('storage.through');
+  });
 
-    beforeEach(function () {
-        inject(function (_$rootScope_, _storage_) {
-            $rootScope = _$rootScope_;
-            $scope = $rootScope.$new();
-            storage = _storage_;
-        })
-    });
+  beforeEach(function () {
+    inject(function (_$rootScope_, _$compile_, _$sniffer_, _storageOperate_) {
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+      $compile = _$compile_;
+      $sniffer = _$sniffer_;
+      storageOperate = _storageOperate_;
+    })
+  });
 
-    it('forward data-bind should work right', function () {
-        $scope.modelKey = 123;
-        storage.set('storageKey', 'love');
-        storage.bind($scope, 'modelKey', 'storageKey', 'forward');
-        $scope.modelKey = 125;
-        $scope.$digest();
-        var getValue = storage.get('storageKey');
-        expect(getValue).toEqual(125);
-    });
+  it('initialize should work right', function () {
+    storageOperate.set('sky', 'blue');
+    element = $compile('<input type="text" ng-model="sky" storage-bind="sky" storage-bind-direction="reverse" >')($scope);
+    $scope.$digest();
+    expect($scope.sky).toEqual('blue');
+    expect(storageOperate.get('sky')).toEqual('blue');
+    $scope.sky = 'rain';
+    $scope.$digest();
+    expect($scope.sky).toEqual('rain');
+    expect(storageOperate.get('sky')).toEqual('rain');
+  });
 
-    it('forward data-bind cancel should work right', function () {
-        var getValue;
-        $scope.modelKey = 123;
-        storage.set('storageKey', 'love');
-        storage.bind($scope, 'modelKey', 'storageKey', 'forward');
-        $scope.modelKey = 125;
-        $scope.$digest();
-        getValue = storage.get('storageKey');
-        expect(getValue).toEqual(125);
-        storage.unbind($scope, 'modelKey', 'storageKey', 'forward');
-        $scope.modelKey = 127;
-        $scope.$digest();
-        getValue = storage.get('storageKey');
-        expect(getValue).toEqual(125);
-    });
+  it('reverse direction should work right', function () {
+    element = $compile('<input type="text" ng-model="sky" storage-bind="sky" storage-bind-direction="reverse" >')($scope);
+    storageOperate.set('sky', 'blue');
+    $scope.$digest();
+    expect(storageOperate.get('sky')).toEqual('blue');
+    $scope.sky = 'rain';
+    expect(storageOperate.get('sky')).toEqual('blue');
+    $scope.$digest();
+    expect(storageOperate.get('sky')).toEqual('rain');
+  });
 
-    it('reverse data-bind should work right', function () {
-        storage.set('storageKey', 123);
-        $scope.modelKey = 'love';
-        storage.bind($scope, 'modelKey', 'storageKey', 'reverse');
-        storage.set('storageKey', 125);
-        $scope.$digest();
-        var getValue = $scope.modelKey;
-        expect(getValue).toEqual(125);
-    });
+  it('forward direction should work right', function () {
+    element = $compile('<input type="text" ng-model="sky" storage-bind="sky" storage-bind-direction="forward" >')($scope);
+    storageOperate.set('sky', 'blue');
+    $scope.$digest();
+    expect(storageOperate.get('sky')).toEqual('blue');
+    element.val('colorful');
+    element.trigger($sniffer.hasEvent('input') ? 'input' : 'change');
+    $scope.$digest();
+    expect(storageOperate.get('sky')).toEqual('colorful');
+  });
 
-    it('reverse data-bind cancel should work right', function () {
-        var getValue;
-        storage.set('storageKey', 123);
-        $scope.modelKey = 'love';
-        storage.bind($scope, 'modelKey', 'storageKey', 'reverse');
-        storage.set('storageKey', 125);
-        $scope.$digest();
-        getValue = $scope.modelKey;
-        expect(getValue).toEqual(125);
-        storage.unbind($scope, 'modelKey', 'storageKey', 'reverse');
-        storage.set('storageKey', 127);
-        $scope.$digest();
-        getValue = $scope.modelKey;
-        expect(getValue).toEqual(125);
-    });
+  it('normal direction should work right', function () {
+    element = $compile('<input type="text" ng-model="sky" storage-bind="sky" storage-bind-direction="normal" >')($scope);
+    storageOperate.set('sky', 'blue');
+    $scope.$digest();
+    expect(storageOperate.get('sky')).toEqual('blue');
+    element.val('colorful');
+    element.trigger($sniffer.hasEvent('input') ? 'input' : 'change');
+    $scope.$digest();
+    expect(storageOperate.get('sky')).toEqual('colorful');
+    $scope.sky = 'rain';
+    expect(storageOperate.get('sky')).toEqual('colorful');
+    $scope.$digest();
+    expect(storageOperate.get('sky')).toEqual('rain');
+  });
 
-    it('normal data-bind should work right', function () {
-        var getValue;
-        $scope.modelKey = 123;
-        storage.set('storageKey', 'love');
-        storage.bind($scope, 'modelKey', 'storageKey', 'normal');
-        $scope.modelKey = 125;
-        $scope.$digest();
-        getValue = storage.get('storageKey');
-        expect(getValue).toEqual(125);
-        storage.set('storageKey', 123);
-        $scope.$digest();
-        getValue = $scope.modelKey;
-        expect(getValue).toEqual(123);
-    });
-
-    it('forward data-bind cancel should work right', function () {
-        var getValue;
-        $scope.modelKey = 123;
-        storage.set('storageKey', 'love');
-        storage.bind($scope, 'modelKey', 'storageKey', 'normal');
-        $scope.modelKey = 125;
-        $scope.$digest();
-        getValue = storage.get('storageKey');
-        expect(getValue).toEqual(125);
-        storage.set('storageKey', 123);
-        $scope.$digest();
-        getValue = $scope.modelKey;
-        expect(getValue).toEqual(123);
-
-        storage.unbind($scope, 'modelKey', 'storageKey', 'normal');
-        $scope.modelKey = 127;
-        $scope.$digest();
-        getValue = storage.get('storageKey');
-        expect(getValue).toEqual(123);
-
-        storage.set('storageKey', 129);
-        $scope.$digest();
-        getValue = $scope.modelKey;
-        expect(getValue).toEqual(127);
-    });
-
-    afterEach(function () {
-        storage.clear();
-        $scope = null;
-        storage = null;
-    });
+  afterEach(function () {
+    storageOperate.clear();
+  });
 });

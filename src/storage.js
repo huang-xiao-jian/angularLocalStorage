@@ -203,41 +203,41 @@ angular.module('storage.through', ['storage.operate', 'storage.utils'])
     }
   }]);
 
-angular.module('storage', ['storage.operate', 'storage.update'])
-  .factory('storage', ['$parse', 'storageOperate', 'storageUpdate', '$log',
-    function ($parse, storageOperate, storageUpdate, $log) {
-      var destiny = angular.copy(storageOperate);
-
-      /**
-       * Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
-       * @param modify - shorthand method
-       * @param storageKey - a string that will be used as the accessor for the pair
-       * @param value - the value of the localStorage item
-       */
-      destiny.update = function(modify, storageKey, value) {
-        switch(modify){
-          case '$inc':
-            storageUpdate.$inc(storageKey, value);
-            break;
-          case '$verse':
-            storageUpdate.$verse(storageKey, value);
-            break;
-          case '$push':
-            storageUpdate.$push(storageKey, value);
-            break;
-          case '$addToSet':
-            storageUpdate.$addToSet(storageKey, value);
-            break;
-          case '$pull':
-            storageUpdate.$pull(storageKey, value);
-            break;
-          case '$unique':
-            storageUpdate.$unique(storageKey);
-            break;
-          case '$extend':
-            storageUpdate.$extend(storageKey, value);
-            break;
-        }
-      };
-		return destiny;
-	}]);  
+angular.module('storage', ['storage.operate', 'storage.update', 'storage.through']);
+  //.factory('storage', ['$parse', 'storageOperate', 'storageUpdate', '$log',
+   // function ($parse, storageOperate, storageUpdate, $log) {
+   //   var destiny = angular.copy(storageOperate);
+  //
+   //   /**
+   //    * Update - A similar function with set to avoid QUOTA_EXCEEDED_ERR in iphone/ipad
+   //    * @param modify - shorthand method
+   //    * @param storageKey - a string that will be used as the accessor for the pair
+   //    * @param value - the value of the localStorage item
+   //    */
+   //   destiny.update = function(modify, storageKey, value) {
+   //     switch(modify){
+   //       case '$inc':
+   //         storageUpdate.$inc(storageKey, value);
+   //         break;
+   //       case '$verse':
+   //         storageUpdate.$verse(storageKey, value);
+   //         break;
+   //       case '$push':
+   //         storageUpdate.$push(storageKey, value);
+   //         break;
+   //       case '$addToSet':
+   //         storageUpdate.$addToSet(storageKey, value);
+   //         break;
+   //       case '$pull':
+   //         storageUpdate.$pull(storageKey, value);
+   //         break;
+   //       case '$unique':
+   //         storageUpdate.$unique(storageKey);
+   //         break;
+   //       case '$extend':
+   //         storageUpdate.$extend(storageKey, value);
+   //         break;
+   //     }
+   //   };
+	//	return destiny;
+	//}]);
