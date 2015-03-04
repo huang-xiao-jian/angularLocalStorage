@@ -16,11 +16,13 @@
     "karma-coverage": "~0.2.7",
     "karma-firefox-launcher": "^0.1.4",
     "karma-ie-launcher": "^0.1.5",
-    "karma-jasmine": "^0.3.5"
+    "karma-jasmine": "^0.3.5",
+    "karma-sauce-launcher": "^0.2.10"
   },
   "scripts": {
     "test": "./node_modules/.bin/karma start karma.conf.js",
     "test-travis": "./node_modules/.bin/karma start CI.conf.js",
+    "test-saucelab": "./node_modules/.bin/karma start saucelab.conf.js",
     "prepare-test": "npm install bower && ./node_modules/.bin/bower -F install"
   },
   "author": "bornkiller",
