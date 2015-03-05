@@ -12,17 +12,29 @@ module.exports = function(config) {
       version: '35',
       platform: 'Windows 8.1'
     },
+    'SL-Safari': {
+      base: 'SauceLabs',
+      browserName: 'safari',
+      version: '8',
+      platform: 'OS X 10.10'
+    },
     'SL_IE_11': {
       base: 'SauceLabs',
       browserName: 'internet explorer',
-      platform: 'Windows 8.1',
+      platform: 'Windows 7',
       version: '11'
     },
     'SL_IE_10': {
       base: 'SauceLabs',
       browserName: 'internet explorer',
-      platform: 'Windows 8',
+      platform: 'Windows 7',
       version: '10'
+    },
+    'SL_IE_9': {
+      base: 'SauceLabs',
+      browserName: 'internet explorer',
+      platform: 'Windows 7',
+      version: '9'
     }
   };
   config.set({
