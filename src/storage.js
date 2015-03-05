@@ -167,7 +167,7 @@ angular.module('storage.update', ['storage.operate', 'storage.utils'])
      */
     destiny.$verse = function(key) {
       var storageValue = storageOperate.get(key);
-      if (storageValue === true || storageValue === false || toString.call(storageValue) === '[object Boolean]') {
+      if (storageValue === true || storageValue === false || Object.prototype.toString.call(storageValue) === '[object Boolean]') {
         storageOperate.set(key, !storageValue);
       }
     };
