@@ -5,6 +5,8 @@ angularLocalStorage
 ![Package Dependency](https://david-dm.org/bornkiller/angularLocalStorage.svg?style=flat)
 ![Package DevDependency](https://david-dm.org/bornkiller/angularLocalStorage/dev-status.svg?style=flat)
 
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/huangjian-storage.svg)](https://saucelabs.com/u/huangjian-storage)
+
 The simplest localStorage module you will ever use. Allowing you to set, get, and *bind* variables.
 
 ##Install

@@ -1,10 +1,10 @@
 language: node_js
 node_js:
   - "0.12"
-env:
-  global:
-    - secure: ZRsiHLQKzQT/+AZ/hF2UVjoKe7T8nF59CpT8glo2MPfJ0dKkblDULAxwYJv4VWHP+yH+7OH07EZxP0xGm0fJVA9lxQkfIfl0//YHqqgOpCU4dyiueW9mr3SV8bASm2pJGP74/QKpyRDuznT35LEVabgaKyZcfFmw7hQr0NuDDQc=
-    - secure: fHsOrRgOmvJHRm8Ha4101IGjrf6vxrABrf+xKZEYQxQFuxhVc/e4EIltp89mUdIw3+/M8OvGZUYwB3adXCYObf2Y2rID/AYwF2wOKNSs5/BAiVhg1MDgCrTRyTfVdt3zOyHp+B3F7fh94F1DvBlgLzZUEv00SurHw9WrzH9nMjc=
+addons:
+  sauce_connect:
+    username: "huangjian-storage"
+    access_key: "a8e53e67-4c1b-4568-bb86-849bccdf0b13"
 before_install:
   - "npm run-script prepare-test"
   - "export DISPLAY=:99.0"
