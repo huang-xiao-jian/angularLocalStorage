@@ -35,6 +35,18 @@ module.exports = function(config) {
       browserName: 'internet explorer',
       platform: 'Windows 7',
       version: '9'
+    },
+    'SL_IPHONE': {
+      base: 'SauceLabs',
+      browserName: 'iphone',
+      platform: 'OS X 10.10',
+      version: '8.1'
+    },
+    'SL_ANDROID': {
+      base: 'SauceLabs',
+      browserName: 'android',
+      platform: 'Linux',
+      version: '4.4'
     }
   };
   config.set({
